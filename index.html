@@ -251,7 +251,10 @@
   .pg .pc { color: #999; text-align: right; font-variant-numeric: tabular-nums; }
   .pg .na { grid-column: 2 / 4; color: #3a3a3a; font-size: 0.85em; }
 
-  .t-daysleft .wi { font-size: calc(min(30cqh, 4.2cqw) * var(--fit, 1) * var(--user, 1)); font-weight: 300; color: var(--c3); letter-spacing: 0.05em; }
+  .t-daysleft .dlt { font-size: calc(min(30cqh, 4.2cqw) * var(--fit, 1) * var(--user, 1)); font-weight: 300; color: var(--c3); letter-spacing: 0.05em; }
+  .t-daysleft .bar { display: none; flex: none; width: 60cqw; height: 2px; margin: 8cqh 0 5cqh; background: var(--track); overflow: hidden; border-radius: 1px; }
+  .t-daysleft .fill { height: 100%; background: var(--c4); transform-origin: left; transform: scaleX(0); }
+  .t-daysleft .pc { font-size: calc(min(18cqh, 2.8cqw) * var(--fit, 1) * var(--user, 1)); font-weight: 300; color: var(--c5); letter-spacing: 0.05em; }
   .rm { display: flex; align-items: baseline; gap: 0.6em; padding: 0.18em 0; color: #aaa; }
   .rm .when { flex: none; color: #777; font-size: 0.85em; min-width: 5.6em; font-variant-numeric: tabular-nums; }
   .rm .when.soon { color: #ddd; }
@@ -401,6 +404,11 @@
   #panel > *, .tab > * { flex-shrink: 0; }
   #tabs { position: sticky; top: -14px; z-index: 2; box-shadow: 0 -14px 0 6px #0b0b0b, 0 8px 10px 4px #0b0b0b; background: #0b0b0b; }
   #tabs button { padding: 7px 11px; }
+  body.sky-full { --c2: #e6e6e6; --c3: #d6d6d6; --c4: #c4c4c4; --c5: #a9a9a9; --track: rgba(255,255,255,0.18); }
+  body.sky-full .card .wi { background: rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.06); }
+  body.sky-full .w:not(.card) .wi { text-shadow: 0 1px 3px rgba(0,0,0,0.45), 0 0 18px rgba(0,0,0,0.35); }
+  #bgTab input[type=range] { accent-color: #777; width: 140px; }
+  #bgTab .seg button { padding: 5px 9px; }
   .hint { color: #444; }
   .seg { display: flex; border: 1px solid #222; border-radius: 6px; overflow: hidden; }
   .seg button, .btn {
@@ -521,7 +529,7 @@
 </button>
 
 <div id="panel">
-  <div class="seg" id="tabs"><button data-t="general" class="on">Settings</button><button data-t="widgets">Widgets</button></div>
+  <div class="seg" id="tabs"><button data-t="general" class="on">Settings</button><button data-t="widgets">Widgets</button><button data-t="bg">Background</button></div>
 
   <div class="tab on" data-tab="general">
     <div class="row" id="acctRow" style="display:none"><span>Account</span>
@@ -530,8 +538,6 @@
       <div class="seg" data-key="font"><button data-v="thin">Thin</button><button data-v="mono">Mono</button><button data-v="rounded">Round</button></div></div>
     <div class="row"><span>Clock only <span class="hint" data-kh="clockOnly">(C)</span></span>
       <div class="seg" data-key="clockOnly"><button data-v="false">Off</button><button data-v="true">On</button></div></div>
-    <div class="row"><span>Background</span>
-      <div class="seg" data-key="bg"><button data-v="off">Off</button><button data-v="weather">Weather</button><button data-v="stars">Stars</button><button data-v="rain">Rain</button><button data-v="snow">Snow</button></div></div>
     <div class="row"><span>Break reminder</span>
       <div class="seg" data-key="breakMins"><button data-v="0">Off</button><button data-v="30">30m</button><button data-v="45">45m</button><button data-v="60">1h</button><button data-v="90">1.5h</button></div></div>
     <div class="row"><span>Break reminder in class</span>
@@ -548,6 +554,8 @@
     <input type="file" id="fileIn" accept=".json,application/json" hidden>
     <div class="sub">Widget settings live in Edit layout. Press E, then click the gear on any widget.</div>
   </div>
+
+  <div class="tab" data-tab="bg" id="bgTab"></div>
 
   <div class="tab" data-tab="widgets">
     <div class="row"><span>Layout <span class="hint" data-kh="layout">(L)</span></span>
@@ -709,7 +717,7 @@ const DEFAULTS = {
   style: 'digital', h24: false, seconds: true, unit: 'F',
   font: 'thin', clockOnly: false, tz2: '', tz2Label: '', loc: null,
   schedules: [{ id: 'normal', name: 'Normal', split: false, rows: DEFAULT_SCHEDULE, rowsA: [], rowsB: [], days: [] }],
-  noSchool: [], override: null, bg: 'off', locked: false, breakMins: '0', breakWhen: 'outside', classInfo: {}, schoolYear: { start: '', end: '' },
+  noSchool: [], override: null, locked: false, breakMins: '0', breakWhen: 'outside', classInfo: {}, schoolYear: { start: '', end: '' },
   layout: DEFAULT_LAYOUT, data: {},
 };
 const clone = o => JSON.parse(JSON.stringify(o));
@@ -734,6 +742,10 @@ function fixSettings() {
     if (bat && bat.w === 1 && bat.c === 11) { bat.c = 10; bat.w = 2; }
   }
   settings.layout = settings.layouts.find(l => l.id === settings.activeLayout).items;
+  if (settings.bg !== undefined) {
+    if (!settings.bgfx) settings.bgfx = { effects: settings.bg === 'off' ? 'none' : settings.bg, sky: 'black' };
+    delete settings.bg;
+  }
   if (!settings.keys) settings.keys = clone(DEFAULT_KEYS);
   for (const k in DEFAULT_KEYS) if (!settings.keys[k]) settings.keys[k] = DEFAULT_KEYS[k];
   delete settings.size; delete settings.color;
@@ -796,6 +808,17 @@ function schoolDaysLeft(now) {
     if (!B.length || t < B[B.length - 1].e) n++;
   }
   for (d.setDate(d.getDate() + 1); d <= last; d.setDate(d.getDate() + 1)) if (isSchoolDay(d)) n++;
+  return n;
+}
+let sdtCache = { key: '', val: 0 };
+function schoolDaysTotal() {
+  const { start, end } = settings.schoolYear;
+  if (!start || !end || end < start) return 0;
+  const key = start + end + schedVer;
+  if (sdtCache.key === key) return sdtCache.val;
+  let n = 0;
+  for (const d = fromYmd(start), last = fromYmd(end); d <= last; d.setDate(d.getDate() + 1)) if (isSchoolDay(d)) n++;
+  sdtCache = { key, val: n };
   return n;
 }
 function homeworkDueToday(now) {
@@ -971,31 +994,140 @@ function moonPhase(d) {
   return names[Math.floor(age / SYN * 8 + 0.5) % 8];
 }
 
-// subtle background
-const fx = { kind: 'off', parts: [], raf: 0, last: 0 };
-function bgKind() {
-  if (settings.bg !== 'weather') return settings.bg || 'off';
-  if (!wx || !wx.current) return 'off';
-  const c = wx.current.weather_code;
+// background
+const BG_DEFAULT = { effects: 'none', sky: 'black', sync: true, sunmoon: true, hills: false, anim: true, dim: 0 };
+const bgCfg = () => Object.assign({}, BG_DEFAULT, settings.bgfx || {});
+const fx = { kind: 'none', parts: [], raf: 0, last: 0, sky: null, skyKey: '', starVis: 1, on: false };
+const SKY = {
+  tint: { night: ['#05070e', '#000000'], dawn: ['#0e0a14', '#1c0e09'], day: ['#081220', '#03070c'], dusk: ['#110917', '#1f0c08'] },
+  dark: { night: ['#08102a', '#010208'], dawn: ['#1d1438', '#4d2617'], day: ['#103050', '#0a1c30'], dusk: ['#26113c', '#5a2410'] },
+  full: { night: ['#0c1a3c', '#03060e'], dawn: ['#3d3b7c', '#ef9f6e'], day: ['#2d6eb2', '#a4cdec'], dusk: ['#382266', '#e2723d'] },
+};
+const hexRgb = h => [1, 3, 5].map(i => parseInt(h.slice(i, i + 2), 16));
+const mixRgb = (a, b, t) => a.map((v, i) => Math.round(v + (b[i] - v) * t));
+const rgbStr = (c, a = 1) => `rgba(${c[0]},${c[1]},${c[2]},${a})`;
+function sunTimes(now) {
+  const def = [7 * 60 + 30, 18 * 60 + 30];
+  if (!wx || !wx.daily || !wx.daily.sunrise) return def;
+  const m = iso => { const [h, mi] = parseHM(iso); return h * 60 + mi; };
+  return [m(wx.daily.sunrise[0]), m(wx.daily.sunset[0])];
+}
+function skyState(now, cfg) {
+  const t = now.getHours() * 60 + now.getMinutes() + now.getSeconds() / 60;
+  const [sr, ss] = sunTimes(now);
+  if (!cfg.sync) return { pal: 'night', mix: null, t: 0, star: 1, sr, ss, tm: t };
+  const keys = [[sr - 75, 'night'], [sr - 10, 'dawn'], [sr + 60, 'day'], [ss - 60, 'day'], [ss + 10, 'dusk'], [ss + 75, 'night']];
+  let a = ['night', 'night', 0];
+  if (t >= keys[0][0] && t < keys[keys.length - 1][0]) {
+    for (let k = 0; k < keys.length - 1; k++) if (t >= keys[k][0] && t < keys[k + 1][0]) {
+      a = [keys[k][1], keys[k + 1][1], (t - keys[k][0]) / (keys[k + 1][0] - keys[k][0])];
+      break;
+    }
+  }
+  const sk = [[sr - 60, 1], [sr + 20, 0], [ss - 20, 0], [ss + 60, 1]];
+  let star = 1;
+  if (t >= sk[0][0] && t < sk[1][0]) star = 1 - (t - sk[0][0]) / (sk[1][0] - sk[0][0]);
+  else if (t >= sk[1][0] && t < sk[2][0]) star = 0;
+  else if (t >= sk[2][0] && t < sk[3][0]) star = (t - sk[2][0]) / (sk[3][0] - sk[2][0]);
+  return { pal: a[0], mix: a[1], t: a[2], star, sr, ss, tm: t };
+}
+function effectKind(cfg) {
+  if (cfg.effects !== 'weather') return cfg.effects || 'none';
+  if (!wx || !wx.current) return 'none';
+  const c = wx.current.weather_code, day = wx.current.is_day !== 0;
   if ((c >= 71 && c <= 77) || c === 85 || c === 86) return 'snow';
   if (c >= 51) return 'rain';
-  if (c <= 1) return wx.current.is_day === 0 ? 'stars' : 'motes';
-  if (c === 2 && wx.current.is_day === 0) return 'stars';
+  if (c <= 1) return day ? 'motes' : 'stars';
+  if (c === 2) return day ? 'clouds' : 'stars';
   return 'clouds';
 }
-function setBg() {
-  const kind = bgKind(), cv = $('bgfx');
-  if (kind === fx.kind && (kind === 'off' || fx.raf)) return;
-  fx.kind = kind;
-  cancelAnimationFrame(fx.raf); fx.raf = 0;
-  cv.style.display = kind === 'off' ? 'none' : 'block';
-  if (kind === 'off') return;
-  cv.width = innerWidth; cv.height = innerHeight;
-  const W = cv.width, H = cv.height, R = Math.random;
-  const n = { stars: 170, rain: 90, snow: 80, clouds: 7, motes: 45 }[kind] || 60;
+function makeParts() {
+  const W = innerWidth, H = innerHeight, R = Math.random;
+  const n = { stars: 170, rain: 90, snow: 80, clouds: 7, motes: 45 }[fx.kind] || 0;
   fx.parts = Array.from({ length: n }, () => ({ x: R() * W, y: R() * H, s: R(), p: R() * 6.28 }));
-  if (kind === 'clouds') fx.parts.forEach(p => { p.r = (0.15 + p.s * 0.2) * Math.max(W, H); p.y = R() * H; });
-  fx.raf = requestAnimationFrame(drawBg);
+  if (fx.kind === 'clouds') fx.parts.forEach(p => { p.r = (0.15 + p.s * 0.2) * Math.max(W, H); p.y = R() * H * 0.8; });
+  if (fx.kind === 'stars') fx.parts.forEach(p => { p.y = R() * H * 0.85; });
+}
+function setBg() {
+  const cfg = bgCfg(), cv = $('bgfx');
+  const kind = effectKind(cfg);
+  const on = cfg.sky !== 'black' || kind !== 'none' || cfg.hills;
+  fx.on = on;
+  cv.style.display = on ? 'block' : 'none';
+  document.body.classList.toggle('sky-full', on && cfg.sky === 'full');
+  cancelAnimationFrame(fx.raf); fx.raf = 0;
+  if (!on) { fx.kind = 'none'; fx.parts = []; return; }
+  if (cv.width !== innerWidth || cv.height !== innerHeight) { cv.width = innerWidth; cv.height = innerHeight; fx.skyKey = ''; }
+  if (kind !== fx.kind || !fx.parts.length) { fx.kind = kind; makeParts(); }
+  fx.skyKey = '';
+  if (cfg.anim && kind !== 'none') fx.raf = requestAnimationFrame(drawBg);
+  else drawFrame(performance.now(), 0);
+}
+function bgTick() { if (fx.on && !fx.raf) drawFrame(performance.now(), 0); }
+function renderSky(cfg, W, H) {
+  const now = new Date();
+  const code = wx && wx.current ? wx.current.weather_code : 0;
+  const key = [now.getHours(), now.getMinutes(), W, H, code, JSON.stringify(cfg), sunTimes(now).join()].join('|');
+  if (key === fx.skyKey && fx.sky) return;
+  fx.skyKey = key;
+  const st = skyState(now, cfg);
+  fx.starVis = st.star;
+  const c = fx.sky || (fx.sky = document.createElement('canvas'));
+  c.width = W; c.height = H;
+  const g = c.getContext('2d');
+  g.clearRect(0, 0, W, H);
+  if (cfg.sky !== 'black') {
+    const P = SKY[cfg.sky] || SKY.dark;
+    const pa = P[st.pal], pb = P[st.mix || st.pal];
+    let top = mixRgb(hexRgb(pa[0]), hexRgb(pb[0]), st.t), bot = mixRgb(hexRgb(pa[1]), hexRgb(pb[1]), st.t);
+    if (code >= 3) {
+      const grey = col => { const l = Math.round(col[0] * 0.3 + col[1] * 0.59 + col[2] * 0.11); return [l, l, l]; };
+      top = mixRgb(top, grey(top), 0.55); bot = mixRgb(bot, grey(bot), 0.55);
+    }
+    const grad = g.createLinearGradient(0, 0, 0, H);
+    grad.addColorStop(0, rgbStr(top)); grad.addColorStop(1, rgbStr(bot));
+    g.fillStyle = grad; g.fillRect(0, 0, W, H);
+
+    if (cfg.sunmoon) {
+      let p, isSun;
+      if (!cfg.sync) { p = 0.72; isSun = false; }
+      else if (st.tm >= st.sr && st.tm <= st.ss) { p = (st.tm - st.sr) / (st.ss - st.sr); isSun = true; }
+      else { const night = 1440 - (st.ss - st.sr); p = ((st.tm - st.ss + 1440) % 1440) / night; isSun = false; }
+      const x = W * (0.08 + 0.84 * p), y = H * 0.9 - Math.sin(Math.PI * p) * H * 0.7;
+      const strength = { tint: 0.07, dark: 0.16, full: 0.45 }[cfg.sky] || 0.15;
+      const col = isSun ? [255, 214, 150] : [190, 205, 235];
+      const glowR = Math.min(W, H) * (isSun ? 0.45 : 0.3);
+      const gl = g.createRadialGradient(x, y, 0, x, y, glowR);
+      gl.addColorStop(0, rgbStr(col, strength * (isSun ? 1 : 0.6)));
+      gl.addColorStop(1, rgbStr(col, 0));
+      g.fillStyle = gl; g.fillRect(0, 0, W, H);
+      if (cfg.sky !== 'tint') {
+        const r = Math.min(W, H) * 0.028;
+        g.fillStyle = rgbStr(isSun ? [255, 232, 190] : [222, 228, 240], cfg.sky === 'full' ? 0.95 : 0.35);
+        g.beginPath(); g.arc(x, y, r, 0, 6.29); g.fill();
+        if (!isSun) {
+          const f = moonFrac(now), k = (1 - Math.cos(2 * Math.PI * f)) / 2;
+          g.save();
+          g.beginPath(); g.arc(x, y, r, 0, 6.29); g.clip();
+          g.fillStyle = 'rgba(0,0,0,0.78)';
+          g.beginPath(); g.arc(x + (f < 0.5 ? -1 : 1) * 2 * r * k, y, r * 1.02, 0, 6.29); g.fill();
+          g.restore();
+        }
+      }
+    }
+  }
+  if (cfg.hills) {
+    const layers = [[0.82, 0.05, '#06080d', 0.7], [0.88, 0.04, '#030407', 1.3]];
+    for (const [base, amp, color, freq] of layers) {
+      g.fillStyle = color;
+      g.beginPath(); g.moveTo(0, H);
+      for (let x = 0; x <= W; x += 8) {
+        const y = H * base - Math.sin(x / W * Math.PI * 2 * freq + base * 9) * H * amp - Math.sin(x / W * Math.PI * 7 * freq) * H * amp * 0.25;
+        g.lineTo(x, y);
+      }
+      g.lineTo(W, H); g.closePath(); g.fill();
+    }
+  }
 }
 function drawBg(t) {
   fx.raf = requestAnimationFrame(drawBg);
@@ -1003,24 +1135,33 @@ function drawBg(t) {
   if (document.hidden || t - fx.last < 1000 / fps) return;
   const dt = Math.min(0.2, (t - fx.last) / 1000 || 0.04);
   fx.last = t;
-  const cv = $('bgfx'), g = cv.getContext('2d'), W = cv.width, H = cv.height;
+  drawFrame(t, dt);
+}
+function drawFrame(t, dt) {
+  const cv = $('bgfx'), g = cv.getContext('2d'), W = cv.width, H = cv.height, cfg = bgCfg();
+  renderSky(cfg, W, H);
   g.clearRect(0, 0, W, H);
+  if (fx.sky) g.drawImage(fx.sky, 0, 0);
+  const boost = { black: 1, tint: 1.2, dark: 1.6, full: 3 }[cfg.sky] || 1;
   if (fx.kind === 'stars') {
-    for (const p of fx.parts) {
+    const vis = cfg.sky === 'black' ? 1 : fx.starVis;
+    if (vis > 0.01) for (const p of fx.parts) {
       const tw = 0.55 + 0.45 * Math.sin(t / 1500 + p.p * 3);
-      const a = (0.18 + 0.5 * p.s) * tw;
+      const a = (0.18 + 0.5 * p.s) * tw * vis;
       const r = p.s > 0.9 ? 1.6 : p.s > 0.6 ? 1.1 : 0.8;
       g.fillStyle = `rgba(255,255,255,${a.toFixed(3)})`;
       g.beginPath(); g.arc(p.x, p.y, r, 0, 6.29); g.fill();
     }
   } else if (fx.kind === 'clouds') {
+    const light = cfg.sky === 'full' && fx.starVis < 0.5;
     for (const p of fx.parts) {
       p.x += (6 + p.s * 8) * dt;
       if (p.x - p.r > W) p.x = -p.r;
       const grad = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, p.r);
-      const a = 0.025 + p.s * 0.025;
-      grad.addColorStop(0, `rgba(170,180,195,${a.toFixed(3)})`);
-      grad.addColorStop(1, 'rgba(170,180,195,0)');
+      const a = Math.min(0.35, (0.025 + p.s * 0.025) * boost);
+      const col = light ? '235,240,248' : '170,180,195';
+      grad.addColorStop(0, `rgba(${col},${a.toFixed(3)})`);
+      grad.addColorStop(1, `rgba(${col},0)`);
       g.fillStyle = grad;
       g.beginPath(); g.ellipse(p.x, p.y, p.r, p.r * 0.45, 0, 0, 6.29); g.fill();
     }
@@ -1029,12 +1170,12 @@ function drawBg(t) {
       p.y -= (6 + p.s * 10) * dt;
       p.x += Math.sin(t / 3000 + p.p) * 6 * dt;
       if (p.y < -5) { p.y = H + 5; p.x = Math.random() * W; }
-      const a = (0.12 + p.s * 0.25) * (0.6 + 0.4 * Math.sin(t / 2000 + p.p));
+      const a = Math.min(0.8, (0.12 + p.s * 0.25) * (0.6 + 0.4 * Math.sin(t / 2000 + p.p)) * (cfg.sky === 'full' ? 1.6 : 1));
       g.fillStyle = `rgba(255,225,170,${a.toFixed(3)})`;
       g.beginPath(); g.arc(p.x, p.y, 0.8 + p.s * 1.2, 0, 6.29); g.fill();
     }
   } else if (fx.kind === 'rain') {
-    g.strokeStyle = 'rgba(160,180,200,0.2)';
+    g.strokeStyle = `rgba(170,190,215,${Math.min(0.5, 0.2 * boost).toFixed(2)})`;
     g.lineWidth = 1;
     g.beginPath();
     for (const p of fx.parts) {
@@ -1044,17 +1185,53 @@ function drawBg(t) {
       g.moveTo(p.x, p.y); g.lineTo(p.x + 2, p.y - 12 - p.s * 8);
     }
     g.stroke();
-  } else {
+  } else if (fx.kind === 'snow') {
     for (const p of fx.parts) {
       p.y += (18 + p.s * 30) * dt;
       p.x += Math.sin(t / 2000 + p.p) * 12 * dt;
       if (p.y > H) { p.y = -5; p.x = Math.random() * W; }
-      g.fillStyle = `rgba(255,255,255,${(0.2 + p.s * 0.3).toFixed(3)})`;
+      g.fillStyle = `rgba(255,255,255,${Math.min(0.9, (0.2 + p.s * 0.3) * (cfg.sky === 'full' ? 1.5 : 1)).toFixed(3)})`;
       g.beginPath(); g.arc(p.x, p.y, 0.8 + p.s * 1.4, 0, 6.29); g.fill();
     }
   }
+  const dim = Number(cfg.dim || 0) / 100;
+  if (dim > 0) { g.fillStyle = `rgba(0,0,0,${dim})`; g.fillRect(0, 0, W, H); }
 }
-window.addEventListener('resize', () => { if (fx.kind !== 'off') { fx.kind = ''; setBg(); } });
+window.addEventListener('resize', () => { if (fx.on) { fx.parts = []; setBg(); } });
+
+// background tab
+function renderBgTab() {
+  const box = $('bgTab');
+  if (!box) return;
+  const cfg = bgCfg();
+  box.innerHTML = '';
+  const set = (k, v) => { settings.bgfx = Object.assign(bgCfg(), { [k]: v }); save(); setBg(); renderBgTab(); };
+  const seg = (label, key, choices) => {
+    const row = mk('div', 'row'), g = mk('div', 'seg');
+    choices.forEach(([v, l]) => { const b = mk('button', String(cfg[key]) === String(v) ? 'on' : '', l); b.onclick = e => { e.stopPropagation(); set(key, v); }; g.append(b); });
+    row.append(mk('span', null, label), g);
+    box.append(row);
+  };
+  seg('Sky', 'sky', [['black', 'Black'], ['tint', 'Tint'], ['dark', 'Dark sky'], ['full', 'Full scene']]);
+  seg('Effects', 'effects', [['none', 'None'], ['weather', 'Weather'], ['stars', 'Stars'], ['clouds', 'Clouds'], ['rain', 'Rain'], ['snow', 'Snow']]);
+  if (cfg.sky !== 'black') {
+    seg('Follow time of day', 'sync', [[true, 'On'], [false, 'Off']]);
+    seg('Sun and moon', 'sunmoon', [[true, 'On'], [false, 'Off']]);
+  }
+  seg('Hills', 'hills', [[true, 'On'], [false, 'Off']]);
+  seg('Animation', 'anim', [[true, 'On'], [false, 'Still']]);
+  const row = mk('div', 'row'), wrap = mk('span', 'btns'), r = mk('input'), v = mk('span', 'sub');
+  wrap.style.alignItems = 'center';
+  r.type = 'range'; r.min = 0; r.max = 70; r.step = 5; r.value = cfg.dim;
+  v.textContent = cfg.dim + '%';
+  r.oninput = () => { settings.bgfx = Object.assign(bgCfg(), { dim: Number(r.value) }); v.textContent = r.value + '%'; fx.skyKey = ''; if (!fx.raf) drawFrame(performance.now(), 0); };
+  r.onchange = () => save();
+  wrap.append(r, v);
+  row.append(mk('span', null, 'Darken'), wrap);
+  box.append(row);
+  const note = cfg.sky === 'full' ? 'Full scene puts a light shade behind cards so text stays readable. ' : '';
+  box.append(mk('div', 'sub', note + 'Weather picks stars, clouds, rain or snow to match outside. Animation uses a little more battery; Still draws it once a minute.'));
+}
 
 // flip clock
 function flipSet(group, str) {
@@ -2039,19 +2216,29 @@ const TYPES = {
 
   daysleft: {
     name: 'School days left',
-    build() {},
+    build(ref) {
+      ref.inner.innerHTML = '<div class="dlt line"></div><div class="bar"><div class="fill"></div></div><div class="pc line"></div>';
+      const q = s => ref.inner.querySelector(s);
+      Object.assign(ref, { t: q('.dlt'), bar: q('.bar'), fill: q('.fill'), pc: q('.pc') });
+    },
     update(ref, now) {
-      const k = now.getHours() + ':' + now.getMinutes() + ':' + schedVer + opt(ref.it, 'fmt', 'long');
+      const k = now.getHours() + ':' + now.getMinutes() + ':' + schedVer + JSON.stringify(ref.it.opt || {});
       if (ref.k === k) return;
       ref.k = k;
       const n = schoolDaysLeft(now), fmt = opt(ref.it, 'fmt', 'long');
+      const total = schoolDaysTotal();
+      const frac = n != null && total ? Math.min(1, Math.max(0, (total - n) / total)) : null;
+      const showBar = opt(ref.it, 'bar', true) && frac != null;
+      ref.bar.style.display = showBar ? 'block' : 'none';
+      if (showBar) ref.fill.style.transform = `scaleX(${frac.toFixed(4)})`;
+      setText(ref.pc, opt(ref.it, 'pct', true) && frac != null && n > 0 ? `${Math.round(frac * 100)}% of the school year done` : '');
       let txt;
       if (n == null) txt = 'Set the last day of school in the bell schedule';
       else if (n === 0) txt = 'School’s out for the year';
       else if (fmt === 'num') txt = String(n);
       else if (fmt === 'short') txt = `${n} day${n === 1 ? '' : 's'} left`;
       else txt = `${n} school day${n === 1 ? '' : 's'} left`;
-      setText(ref.inner, txt);
+      setText(ref.t, txt);
     },
   },
 
@@ -3155,7 +3342,9 @@ function widgetOptions(it) {
     case 'daysleft':
       rows.push(
         optSeg('Wording', [['long', '142 school days left'], ['short', '142 days left'], ['num', '142']], O('fmt', 'long'), S('fmt')),
-        optBtn('Last day of school', 'Edit…', () => { closePop(); openEditor(); }));
+        optSeg('Progress bar', ONOFF, O('bar', true), S('bar')),
+        optSeg('Percent done', ONOFF, O('pct', true), S('pct')),
+        optBtn('School year dates', 'Edit…', () => { closePop(); openEditor(); }));
       break;
     case 'reminders':
       rows.push(
@@ -3268,6 +3457,7 @@ $('resetLayout').onclick = () => {
 
 // settings panel
 function showTab(t) {
+  if (t === 'bg') renderBgTab();
   document.querySelectorAll('#tabs button').forEach(x => x.classList.toggle('on', x.dataset.t === t));
   document.querySelectorAll('.tab').forEach(x => x.classList.toggle('on', x.dataset.tab === t));
 }
@@ -3286,6 +3476,7 @@ function applySettings() {
   cl.toggle('both', settings.style === 'both');
   cl.toggle('style-flip', settings.style === 'flip');
   setBg();
+  if (document.querySelector('#tabs button.on') && document.querySelector('#tabs button.on').dataset.t === 'bg') renderBgTab();
   $('editLayout').style.opacity = settings.locked ? 0.4 : 1;
   document.body.dataset.font = settings.font;
   $('locIn').value = settings.loc ? settings.loc.name : '';
@@ -3483,6 +3674,7 @@ function tick() {
     render();
   }
   try { checkAlerts(new Date()); } catch (e) {}
+  try { bgTick(); } catch (e) {}
   const now = new Date();
   const wait = needSeconds
     ? 1000 - now.getMilliseconds()
