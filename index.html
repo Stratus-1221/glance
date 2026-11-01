@@ -317,6 +317,10 @@
   body.clock-only .w:not(.t-clock) { display: none; }
   .card.noborder .wi { border-color: transparent; }
   .bordered .wi { border: 1px solid #161616; border-radius: 10px; padding: 0 0.6em; box-sizing: border-box; }
+  .w .wi { background: rgba(0,0,0,var(--wbg, 0)); border-radius: 10px; }
+  .w.backed:not(.card) .wi { padding: 0 0.6em; box-sizing: border-box; }
+  .wbgrow input[type=range] { accent-color: #777; width: 120px; }
+  .wbgrow .rv { min-width: 4.6em; text-align: right; color: #666; font-variant-numeric: tabular-nums; }
   body:not(.layout-edit) .w.offhide { display: none; }
   body.layout-edit .w.offhide .wi { opacity: 0.2; }
   #wpop input[type=range] { accent-color: #777; width: 120px; }
@@ -405,7 +409,7 @@
   #tabs { position: sticky; top: -14px; z-index: 2; box-shadow: 0 -14px 0 6px #0b0b0b, 0 8px 10px 4px #0b0b0b; background: #0b0b0b; }
   #tabs button { padding: 7px 11px; }
   body.sky-full { --c2: #e6e6e6; --c3: #d6d6d6; --c4: #c4c4c4; --c5: #a9a9a9; --track: rgba(255,255,255,0.18); }
-  body.sky-full .card .wi { background: rgba(0,0,0,0.5); border-color: rgba(255,255,255,0.06); }
+  body.sky-full .card .wi { border-color: rgba(255,255,255,0.06); }
   body.sky-full .w:not(.card) .wi { text-shadow: 0 1px 3px rgba(0,0,0,0.45), 0 0 18px rgba(0,0,0,0.35); }
   #bgTab input[type=range] { accent-color: #777; width: 140px; }
   #bgTab .seg button { padding: 5px 9px; }
@@ -568,6 +572,9 @@
       <option value="focus">Focus</option><option value="home">Home</option></select></div>
     <div class="row"><span>Lock layout</span>
       <div class="seg" data-key="locked"><button data-v="false">Off</button><button data-v="true">On</button></div></div>
+    <div class="row wbgrow"><span>Widget backgrounds</span>
+      <span class="btns" style="align-items:center"><input type="range" id="wbgAll" min="0" max="100" step="5"><span class="rv" id="wbgAllV"></span></span></div>
+    <div class="row"><span class="sub" id="wbgNote"></span><button class="btn" id="wbgReset">Set every widget to this</button></div>
     <div class="ed-sub" style="margin:2px 0 -4px">Widgets in this layout</div>
     <div id="wlist"></div>
     <div class="row"><span class="sub">Add another</span>
@@ -1055,6 +1062,7 @@ function setBg() {
   fx.on = on;
   cv.style.display = on ? 'block' : 'none';
   document.body.classList.toggle('sky-full', on && cfg.sky === 'full');
+  if (typeof applyWidgetBg === 'function' && refs) applyWidgetBg();
   cancelAnimationFrame(fx.raf); fx.raf = 0;
   if (!on) { fx.kind = 'none'; fx.parts = []; return; }
   if (cv.width !== innerWidth || cv.height !== innerHeight) { cv.width = innerWidth; cv.height = innerHeight; fx.skyKey = ''; }
@@ -2762,6 +2770,31 @@ function checkAlerts(now) {
   checkBreak(now);
 }
 
+// widget backgrounds
+const wbgAuto = () => document.body.classList.contains('sky-full') ? 50 : 0;
+const wbgGlobal = () => settings.widgetBg == null ? wbgAuto() : Number(settings.widgetBg);
+function wbgFor(it) { const v = opt(it, 'bgop', null); return v == null ? wbgGlobal() : Number(v); }
+function applyWidgetBg() {
+  for (const r of refs) {
+    const v = wbgFor(r.it);
+    r.root.style.setProperty('--wbg', (v / 100).toFixed(2));
+    r.root.classList.toggle('backed', v > 0);
+  }
+  const g = $('wbgAll');
+  if (g && document.activeElement !== g) g.value = wbgGlobal();
+  if ($('wbgAllV')) setText($('wbgAllV'), settings.widgetBg == null ? `Auto (${wbgAuto()}%)` : wbgGlobal() + '%');
+  const n = allItems().filter(x => x.opt && x.opt.bgop != null).length;
+  if ($('wbgNote')) setText($('wbgNote'), n ? `${n} widget${n === 1 ? ' has' : 's have'} its own setting` : 'Each widget can also have its own');
+  $('wbgReset').style.display = n ? '' : 'none';
+}
+$('wbgAll').addEventListener('input', () => { settings.widgetBg = Number($('wbgAll').value); applyWidgetBg(); });
+$('wbgAll').addEventListener('change', () => save());
+$('wbgReset').onclick = e => {
+  e.stopPropagation();
+  for (const it of allItems()) if (it.opt) delete it.opt.bgop;
+  save(); applyWidgetBg();
+};
+
 // board
 const board = $('board');
 let refs = [];
@@ -2822,6 +2855,7 @@ function buildBoard() {
     });
   }
   paintWeather();
+  applyWidgetBg();
   tick();
 }
 function startDrag(e, ref, mode) {
@@ -3137,6 +3171,29 @@ function optNode(label, node) {
   return row;
 }
 const ONOFF = [[true, 'On'], [false, 'Off']];
+function optWidgetBg(it) {
+  const row = mk('div', 'row wbgrow');
+  const wrap = mk('span', 'btns');
+  wrap.style.alignItems = 'center';
+  const r = mk('input');
+  r.type = 'range'; r.min = 0; r.max = 100; r.step = 5;
+  r.value = wbgFor(it);
+  const val = mk('span', 'rv');
+  const follow = mk('button', 'btn', 'Use all');
+  follow.title = 'Go back to the setting for all widgets';
+  const show = () => {
+    const own = opt(it, 'bgop', null) != null;
+    val.textContent = own ? wbgFor(it) + '%' : `All (${wbgGlobal()}%)`;
+    follow.style.display = own ? '' : 'none';
+  };
+  r.oninput = () => { setOpt(it, 'bgop', Number(r.value)); applyWidgetBg(); show(); };
+  r.onchange = () => save();
+  follow.onclick = e => { e.stopPropagation(); if (it.opt) delete it.opt.bgop; save(); applyWidgetBg(); r.value = wbgFor(it); show(); };
+  wrap.append(r, val, follow);
+  row.append(mk('span', null, 'Background'), wrap);
+  show();
+  return row;
+}
 function optRange(it) {
   const card = TYPES[it.type].card;
   const row = mk('div', 'row');
@@ -3373,6 +3430,7 @@ function widgetOptions(it) {
       break;
   }
   rows.push(optRange(it));
+  rows.push(optWidgetBg(it));
   rows.push(optSeg('Brightness', [['1', 'Full'], ['0.65', 'Dim'], ['0.4', 'Dimmer']], O('op', '1'), S('op')));
   rows.push(optSeg('Border', ONOFF, O('border', !!TYPES[it.type].card), S('border')));
   rows.push(optSeg('Visible', [['always', 'Always'], ['days', 'School days'], ['hours', 'School hours']], O('show', 'always'), S('show')));
