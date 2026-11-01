@@ -628,7 +628,14 @@
 
 <script>
 // accounts: paste your Firebase web app config here to turn on sign-in (see README)
-const FIREBASE_CONFIG = null;
+const FIREBASE_CONFIG = {
+  apiKey: "AIzaSyBUq2Go-u4_ZlzkN3OA_5enLzsxsDwDlfE",
+  authDomain: "glance-b8fd4.firebaseapp.com",
+  projectId: "glance-b8fd4",
+  storageBucket: "glance-b8fd4.firebasestorage.app",
+  messagingSenderId: "963731535192",
+  appId: "1:963731535192:web:5d25d23b0f30f60835612d"
+};
 
 const $ = id => document.getElementById(id);
 const setText = (el, txt) => { if (el && el.textContent !== txt) el.textContent = txt; };
