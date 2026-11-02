@@ -5,5 +5,20 @@ service cloud.firestore {
     match /users/{uid} {
       allow read, write: if request.auth != null && request.auth.uid == uid;
     }
+    // shared bell schedules: anyone can read a code, only the person who made it can change it
+    match /schedules/{code} {
+      allow read: if true;
+      allow create: if request.auth != null
+        && request.resource.data.owner == request.auth.uid
+        && request.resource.data.data is string
+        && request.resource.data.data.size() < 200000;
+      allow update, delete: if request.auth != null && resource.data.owner == request.auth.uid;
+    }
+    // feedback: anyone can send, nobody can read it from the site (you read it in the Firebase console)
+    match /feedback/{id} {
+      allow create: if request.resource.data.text is string
+        && request.resource.data.text.size() > 0
+        && request.resource.data.text.size() <= 2000;
+    }
   }
 }

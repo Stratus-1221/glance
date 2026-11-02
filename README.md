@@ -15,6 +15,11 @@ Open the site, go through the short setup, and you're done.
 - Press **?** to see every shortcut.
 - Double-click for fullscreen.
 
+## Feedback and shared schedules
+
+Feedback people send shows up in the Firebase console under **Firestore → Data → feedback**.
+Shared bell schedules are stored under **schedules**, one document per code.
+
 ## Turn on accounts (Firebase)
 
 Accounts let people sign in and get the same clock at school and at home. It's free.

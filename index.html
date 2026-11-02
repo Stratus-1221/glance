@@ -86,6 +86,15 @@
   .t-classes .p.glow { color: var(--c1); text-shadow: 0 0 14px var(--glow); }
   .t-classes .bar { display: none; flex: none; width: 50cqw; height: 2px; margin: 6cqh 0 5cqh; background: var(--track); overflow: hidden; border-radius: 1px; }
   .t-classes .fill { height: 100%; background: var(--c4); transform-origin: left; transform: scaleX(0); }
+  .t-classes .cc { display: flex; flex-direction: column; align-items: center; flex: none; max-width: 100%; }
+  .t-classes.ringmode .wi { flex-direction: row; gap: 6cqw; }
+  .t-classes.ringmode .cc { align-items: flex-start; text-align: left; }
+  .ring { position: relative; flex: none; height: calc(min(92cqh, 40cqw) * var(--fit, 1) * var(--user, 1)); aspect-ratio: 1; }
+  .ring svg { width: 100%; height: 100%; display: block; }
+  .ring .rt { fill: none; stroke: var(--track); stroke-width: 5; }
+  .ring .rf { fill: none; stroke: var(--c2); stroke-width: 5; stroke-linecap: round; transition: stroke-dashoffset 0.6s; }
+  .ring.glow .rf { stroke: var(--c1); filter: drop-shadow(0 0 4px var(--glow)); }
+  .ring .rl { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; font-size: 0.24em; font-size: calc(min(92cqh, 40cqw) * 0.24 * var(--fit, 1) * var(--user, 1)); font-weight: 300; color: var(--c1); font-variant-numeric: tabular-nums; }
   .t-classes .r { font-size: calc(min(20cqh, 3.2cqw) * var(--fit, 1) * var(--user, 1)); font-weight: 300; letter-spacing: 0.05em; margin-top: 0.15em; color: var(--c3); }
   .t-classes .dt { font-size: calc(min(18cqh, 3cqw) * var(--fit, 1) * var(--user, 1)); font-weight: 300; letter-spacing: 0.04em; margin-top: 0.3em; color: #a0806a; }
   .t-classes .n { font-size: calc(min(20cqh, 3.2cqw) * var(--fit, 1) * var(--user, 1)); font-weight: 300; letter-spacing: 0.05em; margin-top: 0.25em; font-variant-numeric: tabular-nums; }
@@ -380,6 +389,18 @@
   #wpop .row > span:first-child { white-space: nowrap; }
   #wpop .rv { width: 3.2em; text-align: right; color: #666; font-variant-numeric: tabular-nums; }
 
+  /* phone layout: widgets stack in one column */
+  @media (max-width: 700px) {
+    html, body { height: auto; min-height: 100%; overflow-y: auto; }
+    #board { position: relative; inset: auto; display: flex; flex-direction: column; gap: 10px; padding: 14px 12px 80px; transform: none !important; }
+    #board .w { position: relative !important; left: auto !important; top: auto !important; width: 100% !important;
+      height: calc(var(--rows, 1) * 76px) !important; flex: none; }
+    #board .t-clock { height: calc(max(2, var(--rows, 2)) * 70px) !important; }
+    #board .t-battery { height: 40px !important; }
+    #gridlines { display: none !important; }
+    #panel { right: 10px; left: 10px; width: auto; max-width: none; bottom: 60px; }
+  }
+
   /* layout editor */
   #gridlines {
     display: none; pointer-events: none;
@@ -535,6 +556,29 @@
   button.k:hover { border-color: #666; }
   button.k.wait { border-color: #aaa; color: #fff; }
   .k { justify-self: start; border: 1px solid #2a2a2a; border-radius: 5px; padding: 1px 7px; color: #ccc; font-size: 12px; }
+
+  /* generic popup */
+  #gmodal { position: fixed; inset: 0; z-index: 34; display: none; align-items: center; justify-content: center;
+    background: rgba(0,0,0,0.85); font: 13px -apple-system, "Segoe UI", Roboto, sans-serif; color: #888; cursor: default; }
+  body.gmodal #gmodal { display: flex; }
+  #gmBox textarea, #gmBox input[type=text], #gmBox select { background: #111; border: 1px solid #222; border-radius: 6px; color: #ddd; font: inherit; padding: 8px 10px; color-scheme: dark; width: 100%; box-sizing: border-box; }
+  #gmBox textarea { min-height: 110px; resize: vertical; }
+  .bigcode { font: 300 34px ui-monospace, Menlo, Consolas, monospace; letter-spacing: 0.25em; color: #fff; text-align: center; padding: 8px 0; user-select: all; }
+  .wn h4 { margin: 10px 0 4px; color: #ccc; font-weight: 400; font-size: 13px; }
+  .wn ul { margin: 0; padding-left: 18px; line-height: 1.7; color: #aaa; }
+  .linkbox { word-break: break-all; font-size: 11px; color: #777; max-height: 60px; overflow: auto; background: #0e0e0e; border: 1px solid #1c1c1c; border-radius: 6px; padding: 6px 8px; user-select: all; }
+
+  /* command search */
+  #cmd { position: fixed; inset: 0; z-index: 33; display: none; justify-content: center; align-items: flex-start; padding-top: 14vh;
+    background: rgba(0,0,0,0.6); font: 14px -apple-system, "Segoe UI", Roboto, sans-serif; cursor: default; }
+  body.cmd #cmd { display: flex; }
+  .cmd-box { width: 520px; max-width: calc(100vw - 32px); background: #0b0b0b; border: 1px solid #262626; border-radius: 12px; overflow: hidden; }
+  #cmdIn { width: 100%; box-sizing: border-box; background: none; border: 0; border-bottom: 1px solid #1c1c1c; color: #eee; font: inherit; font-size: 16px; padding: 14px 16px; outline: none; }
+  #cmdList { max-height: 46vh; overflow-y: auto; padding: 6px; }
+  .cmd-i { display: flex; justify-content: space-between; gap: 12px; padding: 8px 10px; border-radius: 7px; color: #ccc; cursor: pointer; }
+  .cmd-i .g { color: #666; font-size: 12px; flex: none; }
+  .cmd-i.sel { background: #1b1b1b; color: #fff; }
+  .cmd-foot { color: #555; font-size: 12px; padding: 8px 14px; border-top: 1px solid #161616; }
 
   /* schedule editor */
   #editor {
@@ -711,8 +755,7 @@
       <span class="btns"><span class="sub" id="acctInfo"></span><button class="btn" id="acctBtn">Sign in</button></span></div>
     <div class="row"><span>Text</span>
       <div class="seg" data-key="textMode"><button data-v="bright">Bright</button><button data-v="soft">Soft</button></div></div>
-    <div class="row"><span>Font</span>
-      <div class="seg" data-key="font"><button data-v="thin">Thin</button><button data-v="mono">Mono</button><button data-v="rounded">Round</button></div></div>
+    <div class="row"><span>Font</span><select id="fontSel"></select></div>
     <div class="row"><span>Clock only <span class="hint" data-kh="clockOnly">(C)</span></span>
       <div class="seg" data-key="clockOnly"><button data-v="false">Off</button><button data-v="true">On</button></div></div>
     <div class="row"><span>Break reminder</span>
@@ -726,8 +769,10 @@
       <span class="btns"><button class="btn" id="saveFileBtn">Save</button><button class="btn" id="loadFileBtn">Load</button></span></div>
     <div class="row"><span>Backup code</span>
       <span class="btns"><button class="btn" id="copyBtn">Copy</button><button class="btn" id="pasteBtn">Paste</button></span></div>
+    <div class="row"><span>Share</span>
+      <span class="btns"><button class="btn" id="shareLayBtn">Layout link</button><button class="btn" id="shareSchBtn">Schedule code</button></span></div>
     <div class="row"><span>Help</span>
-      <span class="btns"><button class="btn" id="setupBtn">Run setup</button><button class="btn" id="helpBtn">Shortcuts <span class="hint" data-kh="help">(?)</span></button></span></div>
+      <span class="btns"><button class="btn" id="setupBtn">Setup</button><button class="btn" id="newsBtn">What’s new</button><button class="btn" id="fbBtn">Feedback</button><button class="btn" id="helpBtn">Shortcuts <span class="hint" data-kh="help">(?)</span></button></span></div>
     <input type="file" id="fileIn" accept=".json,application/json" hidden>
     <div class="sub">Widget settings live in Edit layout. Press E, then click the gear on any widget.</div>
   </div>
@@ -745,6 +790,8 @@
       <option value="focus">Focus</option><option value="home">Home</option><option value="classroom">Classroom</option>
       <option value="bedside">Bedside</option><option value="planner">Planner</option><option value="weather">Weather</option>
       <option value="packed">Packed</option></select></div>
+    <div class="row"><span>Grid</span>
+      <div class="seg" id="gridSeg"><button data-v="false">Normal</button><button data-v="true">Fine</button></div></div>
     <div class="row"><span>Lock layout</span>
       <div class="seg" data-key="locked"><button data-v="false">Off</button><button data-v="true">On</button></div></div>
     <div class="row wbgrow"><span>Widget backgrounds</span>
@@ -790,6 +837,14 @@
   </div>
 </div></div>
 
+<div id="gmodal"><div class="ed-box su-box" id="gmBox"></div></div>
+
+<div id="cmd"><div class="cmd-box">
+  <input id="cmdIn" type="text" placeholder="Search widgets and settings…" autocomplete="off" spellcheck="false">
+  <div id="cmdList"></div>
+  <div class="cmd-foot">↑↓ to move · Enter to pick · Esc to close</div>
+</div></div>
+
 <div id="setup"><div class="ed-box su-box" id="setupBox"></div></div>
 
 <div id="help">
@@ -798,6 +853,7 @@
     <div class="keys" id="keyList"></div>
     <div class="ed-note">Click a key to change it, then press the new key.</div>
     <div class="keys" style="margin-top:12px">
+      <span class="k">Ctrl+K</span><span>Search for any widget or setting</span>
       <span class="k">Ctrl+Z</span><span>Undo while editing the layout (Ctrl+Y to redo)</span>
       <span class="k">Esc</span><span>Close menus</span>
       <span class="k">Double-click</span><span>Fullscreen</span>
@@ -815,7 +871,8 @@
 
 <div id="editor">
   <div class="ed-box">
-    <div class="ed-title">Bell schedule</div>
+    <div class="ed-title" style="display:flex;align-items:center;gap:8px"><span style="flex:1">Bell schedule</span>
+      <button class="btn" id="edShare">Share</button><button class="btn" id="edUseCode">Use a code</button></div>
     <div class="seg ed-tabs" id="edTabs"></div>
     <div id="edOpts"></div>
     <div id="edTables"></div>
@@ -869,7 +926,24 @@ const DEFAULT_SCHEDULE = [
   { start: '11:45', end: '13:17', A: 'English/History',    B: 'English/History' },
   { start: '13:22', end: '14:53', A: 'Biology',            B: 'Photojournalism' },
 ];
-const GRID_C = 12, GRID_R = 8;
+let GRID_C = 12, GRID_R = 8;
+const gk = () => (settings && settings.fine ? 2 : 1);
+const scaleBox = (o, k = gk()) => ({ ...o, c: o.c * k, r: o.r * k, w: o.w * k, h: o.h * k });
+function setGrid() {
+  GRID_C = 12 * gk(); GRID_R = 8 * gk();
+  const gl = $('gridlines');
+  if (gl) gl.style.backgroundSize = `calc(100% / ${GRID_C}) calc(100% / ${GRID_R})`;
+}
+function setFine(on) {
+  if (!!settings.fine === on) return;
+  const f = on ? 2 : 0.5;
+  for (const lay of settings.layouts) for (const it of lay.items) {
+    it.c = Math.max(0, Math.round(it.c * f)); it.r = Math.max(0, Math.round(it.r * f));
+    it.w = Math.max(1, Math.round(it.w * f)); it.h = Math.max(1, Math.round(it.h * f));
+  }
+  settings.fine = on;
+  setGrid(); save(); buildBoard();
+}
 const DEFAULT_LAYOUT = [
   { id: 'clock',       type: 'clock',     c: 3,  r: 1, w: 6, h: 2, on: true },
   { id: 'classes',     type: 'classes',   c: 3,  r: 3, w: 6, h: 1, on: true },
@@ -928,7 +1002,7 @@ function fixSettings() {
   for (const lay of settings.layouts) {
     if (!Array.isArray(lay.items)) lay.items = clone(DEFAULT_LAYOUT);
     for (const d of DEFAULT_LAYOUT)
-      if (!lay.items.some(it => it.id === d.id) && !TYPES[d.type].multi) lay.items.push({ ...clone(d), on: false });
+      if (!lay.items.some(it => it.id === d.id) && !TYPES[d.type].multi) lay.items.push({ ...scaleBox(clone(d), settings.fine ? 2 : 1), on: false });
     const bat = lay.items.find(x => x.id === 'battery');
     if (bat && bat.w === 1 && bat.c === 11) { bat.c = 10; bat.w = 2; }
   }
@@ -1129,7 +1203,7 @@ function status(now) {
     if (t >= s && t < e) {
       cur = i; target = i + 1;
       const left = e - t;
-      out.cur = B[i].name; out.nextName = B[i + 1] ? B[i + 1].name : '';
+      out.cur = B[i].name; out.nextName = B[i + 1] ? B[i + 1].name : ''; out.left = e - t;
       out.main  = `${B[i].name}  ·  ${fmtLeft(left)} left`;
       out.next  = B[i + 1] ? `Up next: ${B[i + 1].name}` : 'Up next: End of day';
       out.frac  = (t - s) / (e - s);
@@ -1140,6 +1214,7 @@ function status(now) {
     if (B[i + 1] && t >= e && t < B[i + 1].s) {
       target = i + 1;
       out.passingTo = B[i + 1].name;
+      out.left = B[i + 1].s - t; out.pfrac = (t - e) / (B[i + 1].s - e);
       const left = B[i + 1].s - t;
       out.main  = `Passing  ·  ${fmtLeft(left)} to ${B[i + 1].name}`;
       out.title = `${fmtLeft(left)} · to ${B[i + 1].name}`;
@@ -1187,7 +1262,13 @@ function moonPhase(d) {
 
 // background
 const BG_DEFAULT = { effects: 'none', sky: 'black', sync: true, sunmoon: true, hills: false, anim: true, dim: 0 };
-const bgCfg = () => Object.assign({}, BG_DEFAULT, settings.bgfx || {});
+const layBg = () => { const l = settings.layouts && settings.layouts.find(x => x.id === settings.activeLayout); return l && l.bgfx ? l : null; };
+const bgCfg = () => Object.assign({}, BG_DEFAULT, (layBg() || {}).bgfx || settings.bgfx || {});
+function setBgCfg(patch) {
+  const l = layBg();
+  if (l) l.bgfx = Object.assign(bgCfg(), patch);
+  else settings.bgfx = Object.assign(bgCfg(), patch);
+}
 const fx = { kind: 'none', parts: [], raf: 0, last: 0, sky: null, skyKey: '', starVis: 1, on: false };
 const SKY = {
   tint: { night: ['#05070e', '#000000'], dawn: ['#0e0a14', '#1c0e09'], day: ['#081220', '#03070c'], dusk: ['#110917', '#1f0c08'] },
@@ -1222,7 +1303,38 @@ function skyState(now, cfg) {
   else if (t >= sk[2][0] && t < sk[3][0]) star = (t - sk[2][0]) / (sk[3][0] - sk[2][0]);
   return { pal: a[0], mix: a[1], t: a[2], star, sr, ss, tm: t };
 }
+let bgPhoto = (() => { try { return localStorage.getItem('clockBgPhoto'); } catch (e) { return null; } })();
+let bgImg = null;
+function setBgPhoto(dataUrl) {
+  bgPhoto = dataUrl; bgImg = null;
+  try { if (dataUrl) localStorage.setItem('clockBgPhoto', dataUrl); else localStorage.removeItem('clockBgPhoto'); }
+  catch (e) { toast('That photo is too big to save. Try a smaller one.', 3); }
+  fx.skyKey = ''; setBg(); renderBgTab();
+}
+function loadBgPhoto(file) {
+  const img = new Image(), url = URL.createObjectURL(file);
+  img.onload = () => {
+    const sc = Math.min(1, 1920 / img.naturalWidth, 1200 / img.naturalHeight);
+    const c = document.createElement('canvas');
+    c.width = Math.round(img.naturalWidth * sc); c.height = Math.round(img.naturalHeight * sc);
+    c.getContext('2d').drawImage(img, 0, 0, c.width, c.height);
+    URL.revokeObjectURL(url);
+    if (!Number(bgCfg().dim)) setBgCfg({ dim: 30 });
+    save();
+    setBgPhoto(c.toDataURL('image/jpeg', 0.82));
+  };
+  img.onerror = () => toast('That file isn\u2019t a picture this browser can open.', 3);
+  img.src = url;
+}
+function seasonKind() {
+  const m = new Date().getMonth(), night = wx && wx.current ? wx.current.is_day === 0 : (new Date().getHours() >= 20 || new Date().getHours() < 6);
+  if (m >= 8 && m <= 10) return 'leaves';
+  if (m === 11 || m <= 1) return 'snow';
+  if (m >= 2 && m <= 4) return 'petals';
+  return night ? 'fireflies' : 'motes';
+}
 function effectKind(cfg) {
+  if (cfg.effects === 'seasonal') return seasonKind();
   if (cfg.effects !== 'weather') return cfg.effects || 'none';
   if (!wx || !wx.current) return 'none';
   const c = wx.current.weather_code, day = wx.current.is_day !== 0;
@@ -1234,18 +1346,20 @@ function effectKind(cfg) {
 }
 function makeParts() {
   const W = innerWidth, H = innerHeight, R = Math.random;
-  const n = { stars: 170, rain: 90, snow: 80, clouds: 7, motes: 45 }[fx.kind] || 0;
+  const n = { stars: 170, rain: 90, snow: 80, clouds: 7, motes: 45, leaves: 26, petals: 34, fireflies: 32 }[fx.kind] || 0;
   fx.parts = Array.from({ length: n }, () => ({ x: R() * W, y: R() * H, s: R(), p: R() * 6.28 }));
   if (fx.kind === 'clouds') fx.parts.forEach(p => { p.r = (0.15 + p.s * 0.2) * Math.max(W, H); p.y = R() * H * 0.8; });
   if (fx.kind === 'stars') fx.parts.forEach(p => { p.y = R() * H * 0.85; });
+  if (fx.kind === 'leaves' || fx.kind === 'petals') fx.parts.forEach(p => { p.rot = R() * 6.28; p.spin = (R() - 0.5) * 2; p.c = Math.floor(R() * 4); });
 }
 function setBg() {
   const cfg = bgCfg(), cv = $('bgfx');
   const kind = effectKind(cfg);
   const on = cfg.sky !== 'black' || kind !== 'none' || cfg.hills;
+  if (cfg.sky === 'photo' && bgPhoto && !bgImg) { bgImg = new Image(); bgImg.onload = () => { fx.skyKey = ''; setBg(); }; bgImg.src = bgPhoto; }
   fx.on = on;
   cv.style.display = on ? 'block' : 'none';
-  document.body.classList.toggle('sky-full', on && cfg.sky === 'full');
+  document.body.classList.toggle('sky-full', on && (cfg.sky === 'full' || (cfg.sky === 'photo' && !!bgPhoto)));
   if (typeof applyWidgetBg === 'function' && refs) applyWidgetBg();
   cancelAnimationFrame(fx.raf); fx.raf = 0;
   if (!on) { fx.kind = 'none'; fx.parts = []; return; }
@@ -1259,7 +1373,7 @@ function bgTick() { if (fx.on && !fx.raf) drawFrame(performance.now(), 0); }
 function renderSky(cfg, W, H) {
   const now = new Date();
   const code = wx && wx.current ? wx.current.weather_code : 0;
-  const key = [now.getHours(), now.getMinutes(), W, H, code, JSON.stringify(cfg), sunTimes(now).join()].join('|');
+  const key = [now.getHours(), now.getMinutes(), W, H, code, JSON.stringify(cfg), sunTimes(now).join(), bgImg ? bgImg.src.length : 0, bgImg && bgImg.complete].join('|');
   if (key === fx.skyKey && fx.sky) return;
   fx.skyKey = key;
   const st = skyState(now, cfg);
@@ -1268,7 +1382,13 @@ function renderSky(cfg, W, H) {
   c.width = W; c.height = H;
   const g = c.getContext('2d');
   g.clearRect(0, 0, W, H);
-  if (cfg.sky !== 'black') {
+  if (cfg.sky === 'photo') {
+    if (bgImg && bgImg.complete && bgImg.naturalWidth) {
+      const sc = Math.max(W / bgImg.naturalWidth, H / bgImg.naturalHeight);
+      const iw = bgImg.naturalWidth * sc, ih = bgImg.naturalHeight * sc;
+      g.drawImage(bgImg, (W - iw) / 2, (H - ih) / 2, iw, ih);
+    }
+  } else if (cfg.sky !== 'black') {
     const P = SKY[cfg.sky] || SKY.dark;
     const pa = P[st.pal], pb = P[st.mix || st.pal];
     let top = mixRgb(hexRgb(pa[0]), hexRgb(pb[0]), st.t), bot = mixRgb(hexRgb(pa[1]), hexRgb(pb[1]), st.t);
@@ -1323,7 +1443,7 @@ function renderSky(cfg, W, H) {
 }
 function drawBg(t) {
   fx.raf = requestAnimationFrame(drawBg);
-  const fps = { stars: 8, clouds: 10, motes: 15 }[fx.kind] || 24;
+  const fps = { stars: 8, clouds: 10, motes: 15, fireflies: 15, leaves: 20, petals: 20 }[fx.kind] || 24;
   if (document.hidden || t - fx.last < 1000 / fps) return;
   const dt = Math.min(0.2, (t - fx.last) / 1000 || 0.04);
   fx.last = t;
@@ -1377,6 +1497,36 @@ function drawFrame(t, dt) {
       g.moveTo(p.x, p.y); g.lineTo(p.x + 2, p.y - 12 - p.s * 8);
     }
     g.stroke();
+  } else if (fx.kind === 'leaves' || fx.kind === 'petals') {
+    const leaf = fx.kind === 'leaves';
+    const cols = leaf ? ['181,86,43', '201,130,47', '141,59,31', '214,163,60'] : ['242,184,201', '247,206,218', '236,160,184', '252,226,233'];
+    for (const p of fx.parts) {
+      p.y += (leaf ? 22 + p.s * 26 : 14 + p.s * 18) * dt;
+      p.x += (Math.sin(t / 1800 + p.p) * (leaf ? 30 : 22) + (leaf ? 0 : 12)) * dt;
+      p.rot += p.spin * dt;
+      if (p.y > H + 10) { p.y = -10; p.x = Math.random() * W; }
+      if (p.x > W + 10) p.x = -10;
+      const a = Math.min(0.85, (leaf ? 0.35 : 0.3) + p.s * 0.3) * (cfg.sky === 'black' ? 0.8 : 1);
+      g.save();
+      g.translate(p.x, p.y); g.rotate(p.rot);
+      g.fillStyle = `rgba(${cols[p.c]},${a.toFixed(3)})`;
+      const sz = leaf ? 3 + p.s * 4 : 2 + p.s * 2.2;
+      g.beginPath(); g.ellipse(0, 0, sz * 1.6, sz * (Math.abs(Math.sin(t / 700 + p.p)) * 0.7 + 0.3), 0, 0, 6.29); g.fill();
+      g.restore();
+    }
+  } else if (fx.kind === 'fireflies') {
+    for (const p of fx.parts) {
+      p.x += Math.sin(t / 2500 + p.p) * 10 * dt;
+      p.y += Math.cos(t / 3100 + p.p * 2) * 8 * dt;
+      const blink = Math.max(0, Math.sin(t / (900 + p.s * 900) + p.p * 5));
+      if (blink < 0.05) continue;
+      const r = 6 + p.s * 6;
+      const grad = g.createRadialGradient(p.x, p.y, 0, p.x, p.y, r);
+      grad.addColorStop(0, `rgba(220,255,140,${(0.7 * blink).toFixed(3)})`);
+      grad.addColorStop(1, 'rgba(220,255,140,0)');
+      g.fillStyle = grad;
+      g.beginPath(); g.arc(p.x, p.y, r, 0, 6.29); g.fill();
+    }
   } else if (fx.kind === 'snow') {
     for (const p of fx.parts) {
       p.y += (18 + p.s * 30) * dt;
@@ -1397,16 +1547,45 @@ function renderBgTab() {
   if (!box) return;
   const cfg = bgCfg();
   box.innerHTML = '';
-  const set = (k, v) => { settings.bgfx = Object.assign(bgCfg(), { [k]: v }); save(); setBg(); renderBgTab(); };
+  const set = (k, v) => { setBgCfg({ [k]: v }); save(); setBg(); renderBgTab(); };
+  if (settings.layouts.length > 1) {
+    const row = mk('div', 'row'), g = mk('div', 'seg');
+    const own = !!layBg();
+    [[false, 'All layouts'], [true, `Just "${curLayout().name}"`]].forEach(([v, l]) => {
+      const b = mk('button', own === v ? 'on' : '', l);
+      b.onclick = e => {
+        e.stopPropagation();
+        const lay = curLayout();
+        if (v) lay.bgfx = clone(bgCfg()); else delete lay.bgfx;
+        save(); setBg(); renderBgTab();
+      };
+      g.append(b);
+    });
+    row.append(mk('span', null, 'Background for'), g);
+    box.append(row);
+  }
   const seg = (label, key, choices) => {
     const row = mk('div', 'row'), g = mk('div', 'seg');
     choices.forEach(([v, l]) => { const b = mk('button', String(cfg[key]) === String(v) ? 'on' : '', l); b.onclick = e => { e.stopPropagation(); set(key, v); }; g.append(b); });
     row.append(mk('span', null, label), g);
     box.append(row);
   };
-  seg('Sky', 'sky', [['black', 'Black'], ['tint', 'Tint'], ['dark', 'Dark sky'], ['full', 'Full scene']]);
-  seg('Effects', 'effects', [['none', 'None'], ['weather', 'Weather'], ['stars', 'Stars'], ['clouds', 'Clouds'], ['rain', 'Rain'], ['snow', 'Snow']]);
-  if (cfg.sky !== 'black') {
+  seg('Sky', 'sky', [['black', 'Black'], ['tint', 'Tint'], ['dark', 'Dark sky'], ['full', 'Full scene'], ['photo', 'Photo']]);
+  if (cfg.sky === 'photo') {
+    const row = mk('div', 'row'), btns = mk('span', 'btns');
+    const pick = mk('button', 'btn', bgPhoto ? 'Change photo' : 'Choose photo');
+    const inp = mk('input'); inp.type = 'file'; inp.accept = 'image/*'; inp.hidden = true;
+    pick.onclick = e => { e.stopPropagation(); inp.click(); };
+    inp.onchange = () => inp.files[0] && loadBgPhoto(inp.files[0]);
+    btns.append(pick, inp);
+    if (bgPhoto) { const rm = mk('button', 'btn', 'Remove'); rm.onclick = e => { e.stopPropagation(); setBgPhoto(null); }; btns.append(rm); }
+    row.append(mk('span', null, 'Your photo'), btns);
+    box.append(row);
+    if (!bgPhoto) box.append(mk('div', 'sub', 'Pick a picture from your computer. It\u2019s saved on this computer only, so it won\u2019t sync to your account.'));
+  }
+  seg('Effects', 'effects', [['none', 'None'], ['weather', 'Weather'], ['seasonal', 'Seasonal'], ['stars', 'Stars'], ['clouds', 'Clouds'], ['rain', 'Rain'], ['snow', 'Snow']]);
+  if (cfg.effects === 'seasonal') box.append(mk('div', 'sub', `Right now: ${{ leaves: 'falling leaves', snow: 'snow', petals: 'spring petals', fireflies: 'fireflies', motes: 'summer light' }[seasonKind()]}. Leaves in fall, snow in winter, petals in spring, fireflies on summer nights.`));
+  if (cfg.sky !== 'black' && cfg.sky !== 'photo') {
     seg('Follow time of day', 'sync', [[true, 'On'], [false, 'Off']]);
     seg('Sun and moon', 'sunmoon', [[true, 'On'], [false, 'Off']]);
   }
@@ -1416,12 +1595,12 @@ function renderBgTab() {
   wrap.style.alignItems = 'center';
   r.type = 'range'; r.min = 0; r.max = 70; r.step = 5; r.value = cfg.dim;
   v.textContent = cfg.dim + '%';
-  r.oninput = () => { settings.bgfx = Object.assign(bgCfg(), { dim: Number(r.value) }); v.textContent = r.value + '%'; fx.skyKey = ''; if (!fx.raf) drawFrame(performance.now(), 0); };
+  r.oninput = () => { setBgCfg({ dim: Number(r.value) }); v.textContent = r.value + '%'; fx.skyKey = ''; if (!fx.raf) drawFrame(performance.now(), 0); };
   r.onchange = () => save();
   wrap.append(r, v);
   row.append(mk('span', null, 'Darken'), wrap);
   box.append(row);
-  const note = cfg.sky === 'full' ? 'Full scene puts a light shade behind cards so text stays readable. ' : '';
+  const note = cfg.sky === 'full' || cfg.sky === 'photo' ? 'Bright skies and photos put a shade behind widgets so text stays readable. ' : '';
   box.append(mk('div', 'sub', note + 'Weather picks stars, clouds, rain or snow to match outside. Animation uses a little more battery; Still draws it once a minute.'));
 }
 
@@ -1521,21 +1700,30 @@ const opt = (it, k, def) => (it.opt && k in it.opt) ? it.opt[k] : def;
 const setOpt = (it, k, v) => { (it.opt || (it.opt = {}))[k] = v; };
 
 // timer sound
-function beep() {
+const SOUNDS = [['beep', 'Beep'], ['chime', 'Chime'], ['bell', 'Bell'], ['marimba', 'Marimba'], ['gentle', 'Gentle'], ['digital', 'Digital']];
+function playSound(name = 'beep') {
   try {
     const a = new (window.AudioContext || window.webkitAudioContext)();
-    [0, 0.35, 0.7].forEach(t => {
+    const t0 = a.currentTime + 0.03;
+    const tone = (f, t, d, type = 'sine', vol = 0.2) => {
       const o = a.createOscillator(), g = a.createGain();
-      o.frequency.value = 880;
-      g.gain.setValueAtTime(0.0001, a.currentTime + t);
-      g.gain.exponentialRampToValueAtTime(0.2, a.currentTime + t + 0.02);
-      g.gain.exponentialRampToValueAtTime(0.0001, a.currentTime + t + 0.25);
+      o.type = type; o.frequency.value = f;
+      g.gain.setValueAtTime(0.0001, t0 + t);
+      g.gain.exponentialRampToValueAtTime(vol, t0 + t + 0.015);
+      g.gain.exponentialRampToValueAtTime(0.0001, t0 + t + d);
       o.connect(g).connect(a.destination);
-      o.start(a.currentTime + t); o.stop(a.currentTime + t + 0.3);
-    });
-    setTimeout(() => a.close(), 1500);
+      o.start(t0 + t); o.stop(t0 + t + d + 0.05);
+    };
+    if (name === 'chime') [[1046.5, 0], [1318.5, 0.18], [1568, 0.36], [2093, 0.54]].forEach(([f, t]) => tone(f, t, 1.3, 'sine', 0.14));
+    else if (name === 'bell') [0, 1.2].forEach(t => { tone(660, t, 2.2, 'sine', 0.24); tone(1320, t, 1.5, 'sine', 0.08); tone(1985, t, 0.9, 'sine', 0.05); });
+    else if (name === 'marimba') [[784, 0], [988, 0.15], [1175, 0.3], [988, 0.45], [1568, 0.6]].forEach(([f, t]) => tone(f, t, 0.4, 'sine', 0.22));
+    else if (name === 'gentle') [523.25, 659.25, 783.99, 1046.5].forEach((f, i) => tone(f, i * 0.45, 1.5, 'triangle', 0.1));
+    else if (name === 'digital') for (let i = 0; i < 4; i++) { tone(2000, i * 0.3, 0.07, 'square', 0.05); tone(2000, i * 0.3 + 0.12, 0.07, 'square', 0.05); }
+    else [0, 0.35, 0.7].forEach(t => tone(880, t, 0.25));
+    setTimeout(() => a.close(), 4000);
   } catch (e) {}
 }
+const beep = () => playSound('beep');
 
 function editableTitle(ref, d, fallback) {
   const t = mk('span', null, d.title || fallback);
@@ -1582,13 +1770,26 @@ const TYPES = {
   classes: {
     name: 'Class countdown',
     build(ref) {
-      ref.inner.innerHTML = '<div class="p line"></div><div class="r line"></div><div class="bar"><div class="fill"></div></div><div class="n line"></div><div class="dt line"></div>';
+      ref.inner.innerHTML = '<div class="ring"><svg viewBox="0 0 100 100"><circle class="rt" cx="50" cy="50" r="44"/><circle class="rf" cx="50" cy="50" r="44" transform="rotate(-90 50 50)"/></svg><span class="rl"></span></div>' +
+        '<div class="cc"><div class="p line"></div><div class="r line"></div><div class="bar"><div class="fill"></div></div><div class="n line"></div><div class="dt line"></div></div>';
       const q = s => ref.inner.querySelector(s);
-      Object.assign(ref, { p: q('.p'), r: q('.r'), bar: q('.bar'), fill: q('.fill'), n: q('.n'), dt: q('.dt') });
+      Object.assign(ref, { p: q('.p'), r: q('.r'), bar: q('.bar'), fill: q('.fill'), n: q('.n'), dt: q('.dt'), ring: q('.ring'), rf: q('.rf'), rl: q('.rl') });
+      ref.rf.style.strokeDasharray = (2 * Math.PI * 44).toFixed(2);
     },
     update(ref, now, st) {
       const it = ref.it;
-      setText(ref.p, st.msg && !opt(it, 'offmsg', true) ? '' : st.main);
+      const ringMode = opt(it, 'look', 'bar') === 'ring';
+      const ringOn = ringMode && st.left != null;
+      ref.ring.style.display = ringOn ? '' : 'none';
+      ref.root.classList.toggle('ringmode', ringOn);
+      if (ringOn) {
+        const f = st.cur ? st.frac : st.pfrac;
+        ref.rf.style.strokeDashoffset = ((1 - f) * 2 * Math.PI * 44).toFixed(2);
+        setText(ref.rl, fmtLeft(st.left));
+        ref.ring.classList.toggle('glow', st.glow && opt(it, 'glow', true));
+      }
+      const mainText = ringOn ? (st.cur ? st.cur : `Passing to ${st.passingTo}`) : st.main;
+      setText(ref.p, st.msg && !opt(it, 'offmsg', true) ? '' : mainText);
       const showRoom = opt(it, 'room', true);
       setText(ref.r, showRoom && st.cur ? classInfo(st.cur) : showRoom && st.passingTo ? classInfo(st.passingTo) : '');
       let next = st.next;
@@ -1601,7 +1802,7 @@ const TYPES = {
       const due = opt(it, 'due', true) ? homeworkDueToday(now) : [];
       setText(ref.dt, due.length ? `Due today: ${due.join(', ')}` : '');
       ref.p.classList.toggle('glow', st.glow && opt(it, 'glow', true));
-      ref.bar.style.display = st.frac == null || !opt(it, 'bar', true) ? 'none' : 'block';
+      ref.bar.style.display = st.frac == null || !opt(it, 'bar', true) || ringMode ? 'none' : 'block';
       if (st.frac != null) ref.fill.style.transform = `scaleX(${st.frac.toFixed(4)})`;
     },
   },
@@ -2568,12 +2769,15 @@ const TYPES = {
         const lab = mk('label'), cb = mk('input'); cb.type = 'checkbox'; cb.value = n;
         lab.append(cb, l); chips.append(lab); return cb;
       });
-      const beepLab = mk('label', 'chk'), beepCb = mk('input');
-      beepCb.type = 'checkbox';
-      beepLab.append(beepCb, 'Beep');
+      const snd = mk('select');
+      [['', 'No sound'], ...SOUNDS].forEach(([v, l]) => { const o = mk('option', null, l); o.value = v; snd.append(o); });
+      snd.value = 'chime';
+      const play = mk('button', 'mini', '\u25B6');
+      play.title = 'Play sound';
+      play.onclick = () => snd.value && playSound(snd.value);
       const ok = mk('button', 'mini', 'Add');
       const r1 = mk('div', 'r'), r2 = mk('div', 'r'), r3 = mk('div', 'r');
-      r1.append(time, label); r2.append(rep, chips); r3.append(beepLab, ok);
+      r1.append(time, label); r2.append(rep, chips); r3.append(snd, play, mk('span', 'chk'), ok);
       form.append(r1, r2, r3);
       ref.inner.append(head, ref.list, form);
       const fillRep = () => {
@@ -2593,7 +2797,7 @@ const TYPES = {
         const days = dayBoxes.filter(c => c.checked).map(c => Number(c.value));
         if (rep.value === 'days' && !days.length) { chips.style.outline = '1px solid #a55'; return; }
         chips.style.outline = '';
-        const a = { id: 'a' + Date.now().toString(36), time: time.value, label: label.value.trim(), repeat: rep.value, days, on: true, beep: beepCb.checked };
+        const a = { id: 'a' + Date.now().toString(36), time: time.value, label: label.value.trim(), repeat: rep.value, days, on: true, sound: snd.value };
         if (a.repeat === 'once') a.date = alarmOnceDate(a.time);
         d.list.push(a);
         label.value = ''; dayBoxes.forEach(c => c.checked = false);
@@ -3247,12 +3451,18 @@ function showAlert(a) {
   setText($('alSub'), a.sub || '');
   $('alSnooze').style.display = a.snooze === false ? 'none' : '';
   $('alertBox').classList.add('show');
-  if (a.beep) beep();
+  clearInterval(alertRing);
+  if (a.sound) {
+    playSound(a.sound);
+    if (a.ring) alertRing = setInterval(() => playSound(a.sound), 6000);
+  } else if (a.beep) beep();
   clearTimeout(alertTimer);
   alertTimer = setTimeout(closeAlert, (a.auto || 60) * 1000);
 }
+let alertRing = null;
 function closeAlert() {
   clearTimeout(alertTimer);
+  clearInterval(alertRing);
   $('alertBox').classList.remove('show');
   alertCur = null;
   if (alertQueue.length) setTimeout(() => showAlert(alertQueue.shift()), 300);
@@ -3283,7 +3493,7 @@ function checkAlerts(now) {
     }
     if (it.type === 'alarms') {
       for (const a of d.list || []) if (a.on && a.time === hm && alarmToday(a, now))
-        once(`${a.id}:${day}:${hm}`, { title: a.label || 'Alarm', sub: clockStr(...a.time.split(':').map(Number)), beep: a.beep, onFire: () => {} }) ;
+        once(`${a.id}:${day}:${hm}`, { title: a.label || 'Alarm', sub: clockStr(...a.time.split(':').map(Number)), sound: a.sound != null ? a.sound : (a.beep ? 'beep' : ''), ring: true });
     }
   }
   for (let i = snoozed.length - 1; i >= 0; i--) if (snoozed[i].at <= Date.now()) { showAlert(snoozed[i].a); snoozed.splice(i, 1); }
@@ -3319,6 +3529,10 @@ $('wbgReset').onclick = e => {
 const board = $('board');
 let refs = [];
 function place(root, it) {
+  const T = TYPES[it.type] || {};
+  const tier = it.type === 'clock' ? 0 : it.type === 'classes' ? 1 : it.type === 'battery' ? 4 : T.card ? 3 : 2;
+  root.style.order = tier * 10000 + it.r * 100 + it.c;
+  root.style.setProperty('--rows', Math.max(1, Math.round(it.h / gk())));
   root.style.left = (it.c / GRID_C * 100) + '%';
   root.style.top = (it.r / GRID_R * 100) + '%';
   root.style.width = (it.w / GRID_C * 100) + '%';
@@ -3330,7 +3544,8 @@ function overlaps(a, b) {
 function findSpot(it) {
   const others = settings.layout.filter(x => x !== it && x.on);
   if (!others.some(o => overlaps(it, o))) return;
-  for (const size of [[it.w, it.h], [Math.min(it.w, 3), Math.min(it.h, 2)], [2, 1]])
+  const k = gk();
+  for (const size of [[it.w, it.h], [Math.min(it.w, 3 * k), Math.min(it.h, 2 * k)], [2 * k, k]])
     for (let r = 0; r + size[1] <= GRID_R; r++)
       for (let c = 0; c + size[0] <= GRID_C; c++) {
         const t = { c, r, w: size[0], h: size[1] };
@@ -3413,7 +3628,8 @@ function switchLayout(id, quiet) {
   closePop();
   settings.activeLayout = id;
   settings.layout = lay.items;
-  save(); buildBoard(); renderWidgetList(); renderLayoutControls();
+  save(); buildBoard(); renderWidgetList(); renderLayoutControls(); setBg();
+  if (document.querySelector('#tabs button.on').dataset.t === 'bg') renderBgTab();
   if (!quiet) toast(lay.name, 1.5);
 }
 function cycleLayout() {
@@ -3436,9 +3652,15 @@ function renderLayoutControls() {
   settings.layouts.forEach(l => { const o = mk('option', null, l.name); o.value = l.id; sel.append(o); });
   sel.value = settings.activeLayout;
   $('layAuto').value = curLayout().auto || '';
+  $('gridSeg').querySelectorAll('button').forEach(b => b.classList.toggle('on', b.dataset.v === String(!!settings.fine)));
   document.querySelectorAll('[data-kh]').forEach(h => setText(h, `(${keyLabel(settings.keys[h.dataset.kh])})`));
 }
 $('laySel').onchange = () => switchLayout($('laySel').value);
+$('gridSeg').addEventListener('click', e => {
+  const b = e.target.closest('button'); if (!b) return;
+  e.stopPropagation();
+  setFine(b.dataset.v === 'true'); renderLayoutControls();
+});
 $('layAuto').onchange = () => { curLayout().auto = $('layAuto').value; lastAuto = undefined; save(); };
 $('layNew').onclick = e => {
   e.stopPropagation();
@@ -3487,7 +3709,7 @@ function applyPreset(name) {
       it = d ? clone(d) : { id: type + '-' + Date.now().toString(36), type };
       settings.layout.push(it);
     }
-    Object.assign(it, { c, r, w, h, on: true });
+    Object.assign(it, scaleBox({ c, r, w, h }), { on: true });
   }
   save(); buildBoard(); renderWidgetList();
 }
@@ -3518,7 +3740,7 @@ function restoreSnapshot(json) {
   settings = Object.assign(clone(DEFAULTS), obj);
   delete settings.layout;
   fixSettings();
-  save(); applySettings(); buildBoard(); renderWidgetList(); renderLayoutControls();
+  setGrid(); save(); applySettings(); buildBoard(); renderWidgetList(); renderLayoutControls();
   undoMuted = false;
 }
 function undo() {
@@ -3545,6 +3767,7 @@ $('redoBtn').onclick = e => { e.stopPropagation(); redo(); };
 
 function setLayoutEdit(on) {
   if (on && settings.locked) { toast('The layout is locked. Unlock it in Settings → Widgets.', 2.5); return; }
+  if (on && innerWidth <= 700) { toast('Edit the layout on a bigger screen. On phones widgets stack in one column.', 3); return; }
   if (on && !document.body.classList.contains('layout-edit')) {
     undoStack = []; redoStack = []; undoBase = settingsJSON();
     setTimeout(updateUndoBtns);
@@ -3789,6 +4012,7 @@ function widgetOptions(it) {
         optSeg('Room and teacher', ONOFF, O('room', true), S('room')),
         optSeg('Due today line', ONOFF, O('due', true), S('due')),
         optSeg('Lunch / out line', ONOFF, O('day', true), S('day')),
+        optSeg('Progress look', [['bar', 'Bar'], ['ring', 'Ring']], O('look', 'bar'), S('look')),
         optSeg('Progress bar', ONOFF, O('bar', true), S('bar')),
         optSeg('Last 5 min glow', ONOFF, O('glow', true), S('glow')),
         optBtn('Bell schedule', 'Edit…', () => { closePop(); openEditor(); }));
@@ -3944,7 +4168,13 @@ function widgetOptions(it) {
         optSeg('Rain chance', ONOFF, O('rain', true), S('rain')));
       break;
     case 'alarms':
-      rows.push(mk('div', 'sub', 'Alarms only go off while this page is open. "Beep" needs the volume up.'));
+      rows.push(...(dataFor(it).list || []).map(a => {
+        const sel = mk('select');
+        [['', 'No sound'], ...SOUNDS].forEach(([v, l]) => { const o = mk('option', null, l); o.value = v; sel.append(o); });
+        sel.value = a.sound != null ? a.sound : (a.beep ? 'beep' : '');
+        sel.onchange = () => { a.sound = sel.value; delete a.beep; save(); if (sel.value) playSound(sel.value); };
+        return optNode(`${clockStr(...a.time.split(':').map(Number))} ${a.label || 'Alarm'}`, sel);
+      }), mk('div', 'sub', 'Alarms only go off while this page is open, and the sound repeats until you dismiss it. Sounds need the volume up.'));
       break;
     case 'planner':
       rows.push(optSeg('Finished blocks', [[true, 'Show'], [false, 'Hide']], O('past', true), S('past')));
@@ -4071,7 +4301,7 @@ function renderWidgetList() {
 function addCard(type) {
   const n = settings.layout.filter(x => x.type === type).length + 1;
   const id = type + '-' + Date.now().toString(36);
-  const it = { id, type, c: 4, r: 2, w: 3, h: 3, on: true };
+  const it = { id, type, ...scaleBox({ c: 4, r: 2, w: 3, h: 3 }), on: true };
   settings.layout.push(it);
   findSpot(it);
   settings.data[id] = { ...clone(TYPES[type].data), title: `${TYPES[type].data.title} ${n}` };
@@ -4084,8 +4314,8 @@ $('resetLayout').onclick = () => {
   if (!confirm('Move every widget in this layout back to where it started?')) return;
   for (const it of settings.layout) {
     const d = DEFAULT_LAYOUT.find(x => x.id === it.id);
-    if (d) Object.assign(it, { c: d.c, r: d.r, w: d.w, h: d.h, on: d.on });
-    else Object.assign(it, { c: 4, r: 2, w: 3, h: 3 });
+    if (d) Object.assign(it, scaleBox({ c: d.c, r: d.r, w: d.w, h: d.h }), { on: d.on });
+    else Object.assign(it, scaleBox({ c: 4, r: 2, w: 3, h: 3 }));
   }
   save(); buildBoard(); renderWidgetList();
 };
@@ -4115,9 +4345,10 @@ function applySettings() {
   if (document.querySelector('#tabs button.on') && document.querySelector('#tabs button.on').dataset.t === 'bg') renderBgTab();
   $('editLayout').style.opacity = settings.locked ? 0.4 : 1;
   document.body.dataset.font = settings.font;
+  applyFont();
+  if ($('fontSel').value !== settings.font) $('fontSel').value = settings.font;
   $('locIn').value = settings.loc ? settings.loc.name : '';
   $('tz2In').value = settings.tz2 ? tzOptionText(settings.tz2, settings.tz2Label) : '';
-  ensureFont(settings.font);
   lastFav = '';
   refs.forEach(r => { r.k = ''; });
 }
@@ -4138,16 +4369,39 @@ document.querySelectorAll('.seg[data-key]').forEach(seg => {
 });
 
 // fonts
-const FONT_URLS = {
-  mono: 'https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@200;300&display=swap',
-  rounded: 'https://fonts.googleapis.com/css2?family=Nunito:wght@200;300&display=swap',
+const GF = 'https://fonts.googleapis.com/css2?family=';
+const FONTS = {
+  thin: { label: 'Thin (default)', css: '-apple-system, "Helvetica Neue", "Segoe UI", Roboto, sans-serif', tw: 200 },
+  inter: { label: 'Inter', css: '"Inter", sans-serif', tw: 200, url: 'Inter:wght@200;300' },
+  geometric: { label: 'Geometric', css: '"Outfit", sans-serif', tw: 200, url: 'Outfit:wght@200;300' },
+  grotesk: { label: 'Grotesk', css: '"Space Grotesk", sans-serif', tw: 300, url: 'Space+Grotesk:wght@300;400' },
+  rounded: { label: 'Rounded', css: '"Nunito", ui-rounded, sans-serif', tw: 200, url: 'Nunito:wght@200;300' },
+  mono: { label: 'Mono', css: '"JetBrains Mono", ui-monospace, Menlo, Consolas, monospace', tw: 200, url: 'JetBrains+Mono:wght@200;300' },
+  serif: { label: 'Serif', css: '"Fraunces", Georgia, serif', tw: 200, url: 'Fraunces:wght@200;300' },
+  condensed: { label: 'Condensed', css: '"Oswald", "Arial Narrow", sans-serif', tw: 200, url: 'Oswald:wght@200;300' },
+  display: { label: 'Bold display', css: '"Bebas Neue", Impact, sans-serif', tw: 400, url: 'Bebas+Neue' },
+  scifi: { label: 'Sci-fi', css: '"Orbitron", sans-serif', tw: 400, url: 'Orbitron:wght@400' },
+  pixel: { label: 'Pixel', css: '"Silkscreen", monospace', tw: 400, url: 'Silkscreen' },
+  hand: { label: 'Handwritten', css: '"Caveat", cursive', tw: 400, url: 'Caveat:wght@400' },
 };
 function ensureFont(f) {
-  if (!FONT_URLS[f] || document.getElementById('font-' + f)) return;
+  const F = FONTS[f];
+  if (!F || !F.url || document.getElementById('font-' + f)) return;
   const l = document.createElement('link');
-  l.id = 'font-' + f; l.rel = 'stylesheet'; l.href = FONT_URLS[f];
+  l.id = 'font-' + f; l.rel = 'stylesheet'; l.href = GF + F.url + '&display=swap';
   document.head.appendChild(l);
 }
+function applyFont() {
+  const F = FONTS[settings.font] || FONTS.thin;
+  ensureFont(settings.font);
+  document.body.style.setProperty('--font', F.css);
+  document.body.style.setProperty('--tw', F.tw);
+}
+(function fillFonts() {
+  const sel = $('fontSel');
+  for (const [k, F] of Object.entries(FONTS)) { const o = mk('option', null, F.label); o.value = k; sel.append(o); }
+  sel.onchange = () => { settings.font = sel.value; save(); applySettings(); refs.forEach(r => { r.fit = 1; }); setTimeout(() => { lastFitMinute = -1; tick(); }, 400); };
+})();
 
 // second time zone
 const CITY_ALIASES = {
@@ -4597,7 +4851,7 @@ function applyImported(obj) {
   if (obj.layouts) delete settings.layout;
   fixSettings();
   settings.setupDone = true;
-  save(); applySettings(); buildBoard(); renderWidgetList(); renderLayoutControls();
+  setGrid(); save(); applySettings(); buildBoard(); renderWidgetList(); renderLayoutControls();
   if (settings.loc) { lat = settings.loc.lat; lon = settings.loc.lon; }
   loadWeather();
 }
@@ -4624,6 +4878,320 @@ $('fileIn').onchange = async () => {
     flashBtn($('loadFileBtn'), 'Loaded ✓');
   } catch (e) { alert("That file didn't work. Pick a backup saved from this clock."); }
 };
+
+// popups
+function showModal({ title, body = [], actions = [] }) {
+  const box = $('gmBox');
+  box.innerHTML = '';
+  box.append(mk('div', 'su-title', title));
+  body.forEach(n => box.append(typeof n === 'string' ? mk('div', 'su-text', n) : n));
+  const act = mk('div', 'ed-actions');
+  const sp = mk('span'); sp.style.flex = '1';
+  act.append(sp);
+  actions.forEach(a => {
+    const b = mk('button', 'btn' + (a.primary ? ' primary' : ''), a.label);
+    b.onclick = e => { e.stopPropagation(); if (a.fn ? a.fn(b) !== false : true) closeModal(); };
+    act.append(b);
+  });
+  box.append(act);
+  document.body.classList.remove('open', 'cmd');
+  document.body.classList.add('gmodal');
+  const f = box.querySelector('textarea, input');
+  if (f) setTimeout(() => f.focus(), 30);
+}
+const closeModal = () => document.body.classList.remove('gmodal');
+$('gmodal').addEventListener('click', e => { if (e.target === $('gmodal')) closeModal(); e.stopPropagation(); });
+async function copyText(t) {
+  try { await navigator.clipboard.writeText(t); toast('Copied', 1.2); return true; }
+  catch (e) { prompt('Copy this:', t); return false; }
+}
+
+// share layout link
+const b64u = bytes => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
+const unb64u = str => Uint8Array.from(atob(str.replace(/-/g, '+').replace(/_/g, '/')), c => c.charCodeAt(0));
+async function packJSON(obj) {
+  const raw = new TextEncoder().encode(JSON.stringify(obj));
+  if (window.CompressionStream) {
+    const out = await new Response(new Blob([raw]).stream().pipeThrough(new CompressionStream('gzip'))).arrayBuffer();
+    return 'z' + b64u(new Uint8Array(out));
+  }
+  return 'j' + b64u(raw);
+}
+async function unpackJSON(str) {
+  const bytes = unb64u(str.slice(1));
+  if (str[0] === 'z') {
+    const txt = await new Response(new Blob([bytes]).stream().pipeThrough(new DecompressionStream('gzip'))).text();
+    return JSON.parse(txt);
+  }
+  return JSON.parse(new TextDecoder().decode(bytes));
+}
+async function shareLayout() {
+  const lay = curLayout();
+  const items = lay.items.map(it => ({ id: it.id, type: it.type, c: it.c, r: it.r, w: it.w, h: it.h, on: !!it.on, opt: it.opt }));
+  const payload = { v: 1, name: lay.name, fine: !!settings.fine, items, bgfx: bgCfg(), font: settings.font, style: settings.style };
+  const code = await packJSON(payload);
+  const base = location.href.split('#')[0];
+  const url = `${base}#layout=${code}`;
+  const box = mk('div', 'linkbox', url);
+  showModal({
+    title: `Share "${lay.name}"`,
+    body: ['Anyone who opens this link can copy this layout: where widgets are, their settings, the background and font. Your notes, lists, homework and schedule aren’t included.', box,
+      location.protocol === 'file:' ? 'Tip: share the link from the website version so it opens for your friends.' : ''].filter(Boolean),
+    actions: [{ label: 'Close' }, { label: 'Copy link', primary: true, fn: () => { copyText(url); } }],
+  });
+}
+async function checkSharedLayout() {
+  const m = location.hash.match(/^#layout=([\w-]+)$/);
+  if (!m) return;
+  history.replaceState(null, '', location.href.split('#')[0]);
+  let p;
+  try { p = await unpackJSON(m[1]); } catch (e) { toast('That layout link didn’t work.', 3); return; }
+  if (!p || !Array.isArray(p.items)) return;
+  const n = p.items.filter(x => x.on).length;
+  const apply = asNew => {
+    const k = (settings.fine ? 2 : 1) / (p.fine ? 2 : 1);
+    const items = p.items.filter(x => TYPES[x.type]).map(x => ({ ...x, c: Math.round(x.c * k), r: Math.round(x.r * k), w: Math.max(1, Math.round(x.w * k)), h: Math.max(1, Math.round(x.h * k)) }));
+    if (asNew) {
+      const id = 'l' + Date.now().toString(36);
+      let name = p.name || 'Shared';
+      if (settings.layouts.some(l => l.name === name)) name += ' (shared)';
+      settings.layouts.push({ id, name, auto: '', items, bgfx: p.bgfx });
+      fixSettings(); switchLayout(id);
+    } else {
+      const lay = curLayout();
+      lay.items.length = 0; lay.items.push(...items);
+      if (p.bgfx) setBgCfg(p.bgfx);
+      fixSettings(); save(); buildBoard(); renderWidgetList(); setBg();
+    }
+    if (p.font && FONTS[p.font] && confirm(`Also use their font (${FONTS[p.font].label})?`)) { settings.font = p.font; save(); applySettings(); }
+    toast('Layout added', 2);
+  };
+  showModal({
+    title: 'Someone shared a layout',
+    body: [`"${p.name || 'Layout'}" with ${n} widget${n === 1 ? '' : 's'}. Your notes, lists and schedule stay the same.`],
+    actions: [{ label: 'No thanks' }, { label: 'Replace this layout', fn: () => apply(false) }, { label: 'Add as new layout', primary: true, fn: () => apply(true) }],
+  });
+}
+
+// share schedule codes (Firebase)
+const CODE_CHARS = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+const newCode = () => Array.from(crypto.getRandomValues(new Uint8Array(6)), b => CODE_CHARS[b % CODE_CHARS.length]).join('');
+function scheduleForShare(withNames) {
+  const sch = clone(settings.schedules);
+  if (!withNames) for (const sc of sch) {
+    let n = 0; sc.rows.forEach(r => { if (/lunch/i.test(r.A || '')) { r.A = r.B = 'Lunch'; } else { n++; r.A = r.B = `Period ${n}`; } });
+    for (const key of ['rowsA', 'rowsB']) { let m = 0; sc[key].forEach(r => { r.name = /lunch/i.test(r.name || '') ? 'Lunch' : `Period ${++m}`; }); }
+  }
+  return { schedules: sch, noSchool: settings.noSchool, schoolYear: settings.schoolYear, ab: settings.ab };
+}
+function needCloud(what) {
+  if (cloud.ready) return true;
+  showModal({ title: what, body: [location.protocol === 'file:' ? 'This works on the website version of glance (it needs the online database).' : 'The online database isn’t ready yet. Check your internet and try again.'], actions: [{ label: 'OK', primary: true }] });
+  return false;
+}
+function shareSchedule() {
+  if (!needCloud('Share your schedule')) return;
+  if (!cloud.user) {
+    showModal({ title: 'Share your schedule', body: ['Sign in first so you can update or delete your shared schedule later.'], actions: [{ label: 'Cancel' }, { label: 'Sign in', primary: true, fn: () => { setTimeout(openAcct, 50); } }] });
+    return;
+  }
+  const school = mk('input'); school.type = 'text'; school.placeholder = 'School name (optional)'; school.value = settings.shareSchool || '';
+  const lab = mk('label', 'keep'), cb = mk('input');
+  cb.type = 'checkbox'; lab.style.cssText = 'display:flex;gap:8px;align-items:center;color:#aaa;cursor:pointer';
+  lab.append(cb, 'Include my class names (usually leave this off)');
+  showModal({
+    title: 'Share your bell schedule',
+    body: ['Classmates type the code in their bell schedule editor and get your times, A/B setup, special schedules, school year and days off. Class names are swapped for "Period 1", "Period 2"... unless you include them.', school, lab],
+    actions: [{ label: 'Cancel' }, { label: settings.shareCode ? 'Update shared code' : 'Make a code', primary: true, fn: btn => {
+      btn.textContent = 'Saving…';
+      (async () => {
+        const code = settings.shareCode || newCode();
+        try {
+          const { doc, setDoc } = cloud.fb;
+          await setDoc(doc(cloud.db, 'schedules', code), { owner: cloud.user.uid, school: school.value.trim().slice(0, 80), created: Date.now(), data: JSON.stringify(scheduleForShare(cb.checked)) });
+          settings.shareCode = code; settings.shareSchool = school.value.trim(); save();
+          const c = mk('div', 'bigcode', code);
+          showModal({ title: 'Your schedule code', body: [c, 'Share this code. If you change your schedule later, share again and the same code updates.'],
+            actions: [{ label: 'Close' }, { label: 'Copy code', primary: true, fn: () => { copyText(code); } }] });
+        } catch (e) {
+          showModal({ title: 'Couldn’t share', body: ['The database said no. Make sure the newest security rules from the README are published in Firebase.'], actions: [{ label: 'OK', primary: true }] });
+        }
+      })();
+      return false;
+    } }],
+  });
+}
+function importScheduleCode() {
+  if (!needCloud('Use a schedule code')) return;
+  const inp = mk('input'); inp.type = 'text'; inp.placeholder = 'ABC123'; inp.maxLength = 6;
+  inp.style.cssText += ';text-transform:uppercase;letter-spacing:0.2em;font-size:18px;text-align:center';
+  const err = mk('div', 'su-text'); err.style.color = '#e07a6e';
+  const go = async btn => {
+    const code = inp.value.trim().toUpperCase();
+    if (!/^[A-Z0-9]{6}$/.test(code)) { err.textContent = 'Codes are 6 letters and numbers.'; return false; }
+    btn.textContent = 'Looking…';
+    try {
+      const { doc, getDoc } = cloud.fb;
+      const snap = await getDoc(doc(cloud.db, 'schedules', code));
+      if (!snap.exists()) { err.textContent = 'No schedule with that code.'; btn.textContent = 'Use code'; return false; }
+      const r = snap.data(), d = JSON.parse(r.data);
+      const blocks = (d.schedules[0].split ? d.schedules[0].rowsA : d.schedules[0].rows).length;
+      showModal({
+        title: r.school ? `Schedule from ${r.school}` : 'Shared schedule',
+        body: [`${blocks} blocks, ${d.schedules.length - 1} special schedule${d.schedules.length === 2 ? '' : 's'}, ${d.noSchool.length} day${d.noSchool.length === 1 ? '' : 's'} off. This replaces your bell schedule. Afterward, put in your own class names.`],
+        actions: [{ label: 'Cancel' }, { label: 'Use it', primary: true, fn: () => {
+          settings.schedules = d.schedules; settings.noSchool = d.noSchool || [];
+          if (d.schoolYear) settings.schoolYear = d.schoolYear;
+          if (typeof d.ab === 'boolean') settings.ab = d.ab;
+          fixSettings(); save(); applySettings(); refs.forEach(x => { x.k = ''; }); tick();
+          setTimeout(openEditor, 50);
+        } }],
+      });
+    } catch (e) { err.textContent = 'Couldn’t reach the database. Try again.'; btn.textContent = 'Use code'; }
+    return false;
+  };
+  inp.addEventListener('keydown', e => { if (e.key === 'Enter') go($('gmBox').querySelector('.btn.primary')); });
+  showModal({ title: 'Use a schedule code', body: ['Type the 6-character code a classmate gave you.', inp, err], actions: [{ label: 'Cancel' }, { label: 'Use code', primary: true, fn: btn => { go(btn); return false; } }] });
+}
+$('edShare').onclick = e => { e.stopPropagation(); closeEditor(); shareSchedule(); };
+$('edUseCode').onclick = e => { e.stopPropagation(); closeEditor(); importScheduleCode(); };
+$('shareSchBtn').onclick = e => { e.stopPropagation(); shareSchedule(); };
+$('shareLayBtn').onclick = e => { e.stopPropagation(); shareLayout(); };
+
+// feedback
+function openFeedback() {
+  if (!needCloud('Send feedback')) return;
+  const kind = mk('select');
+  [['idea', 'Idea'], ['bug', 'Something’s broken'], ['other', 'Other']].forEach(([v, l]) => { const o = mk('option', null, l); o.value = v; kind.append(o); });
+  const ta = mk('textarea'); ta.placeholder = 'What’s on your mind?'; ta.maxLength = 2000;
+  const who = mk('input'); who.type = 'text'; who.placeholder = 'Your name or email (optional, so I can reply)'; who.maxLength = 120;
+  if (cloud.user) who.value = cloud.user.email || '';
+  const err = mk('div', 'su-text'); err.style.color = '#e07a6e';
+  showModal({
+    title: 'Send feedback',
+    body: ['Ideas, bugs, anything. It goes straight to the person who made glance.', kind, ta, who, err],
+    actions: [{ label: 'Cancel' }, { label: 'Send', primary: true, fn: btn => {
+      const text = ta.value.trim();
+      if (!text) { err.textContent = 'Write something first.'; return false; }
+      btn.textContent = 'Sending…';
+      (async () => {
+        try {
+          const { collection, addDoc } = cloud.fb;
+          await addDoc(collection(cloud.db, 'feedback'), { text, kind: kind.value, contact: who.value.trim(), created: Date.now(), version: VERSION, uid: cloud.user ? cloud.user.uid : '', agent: navigator.userAgent.slice(0, 200) });
+          closeModal(); toast('Thanks! Feedback sent.', 2.5);
+        } catch (e) { err.textContent = 'Couldn’t send. Check your internet and try again.'; btn.textContent = 'Send'; }
+      })();
+      return false;
+    } }],
+  });
+}
+$('fbBtn').onclick = e => { e.stopPropagation(); openFeedback(); };
+
+// what's new
+const VERSION = '1.8';
+const CHANGELOG = [
+  { v: '1.8', items: ['Share a link to your layout, or a code for your bell schedule', 'Send feedback from Settings', 'Phone layout: widgets stack in one column', 'Ctrl+K searches every widget and setting', 'Fine grid for exact placement', 'A dozen fonts', 'Your own photo as the background', 'Seasonal effects: leaves, snow, petals, fireflies', 'Each layout can have its own background', 'Ring look for the class countdown', 'Alarm sounds you can pick'] },
+  { v: '1.7', items: ['Bright text mode', 'On this day skips grim events and can show birthdays', 'Today’s schedule, day timeline, today agenda, search box, daily checklist, message board, On this day widgets'] },
+  { v: '1.6', items: ['Keep me signed in', 'Background button', 'More presets'] },
+];
+function showWhatsNew(force) {
+  const seen = settings.seenVersion;
+  const list = force ? CHANGELOG : CHANGELOG.filter(c => !seen || c.v > seen);
+  if (!list.length) return;
+  const box = mk('div', 'wn');
+  list.slice(0, 3).forEach(c => {
+    box.append(mk('h4', null, `Version ${c.v}`));
+    const ul = mk('ul');
+    c.items.forEach(t => ul.append(mk('li', null, t)));
+    box.append(ul);
+  });
+  settings.seenVersion = VERSION; save();
+  showModal({ title: 'What’s new in glance', body: [box], actions: [{ label: 'Nice', primary: true }] });
+}
+$('newsBtn').onclick = e => { e.stopPropagation(); showWhatsNew(true); };
+
+// command search
+let cmdItems = [], cmdSel = 0;
+function cmdCommands() {
+  const C = [];
+  const add = (label, group, fn) => C.push({ label, group, fn });
+  const T = (it) => { const T = TYPES[it.type]; return T.multi ? (dataFor(it).title || T.name) : T.name; };
+  for (const it of settings.layout) {
+    if (!TYPES[it.type]) continue;
+    add(`${it.on ? 'Hide' : 'Show'} ${T(it)}`, 'Widget', () => { it.on = !it.on; if (it.on) findSpot(it); save(); buildBoard(); renderWidgetList(); });
+  }
+  add('Edit layout', 'Layout', () => setLayoutEdit(true));
+  settings.layouts.forEach(l => { if (l.id !== settings.activeLayout) add(`Switch to layout: ${l.name}`, 'Layout', () => switchLayout(l.id)); });
+  Object.keys(PRESETS).forEach(k => add(`Preset: ${k[0].toUpperCase() + k.slice(1)}`, 'Layout', () => { if (confirm('Replace this layout with the preset? Your notes and lists are kept.')) applyPreset(k); }));
+  add('Add a note', 'Widget', () => addCard('notes'));
+  add('Add a checklist', 'Widget', () => addCard('checklist'));
+  add('Add a daily checklist', 'Widget', () => addCard('daily'));
+  add(`${settings.locked ? 'Unlock' : 'Lock'} layout`, 'Layout', () => { settings.locked = !settings.locked; save(); applySettings(); });
+  add(`${settings.fine ? 'Normal' : 'Fine'} grid`, 'Layout', () => { setFine(!settings.fine); renderLayoutControls(); });
+  add('Open settings', 'Menu', () => openPanel('general'));
+  add('Open widgets', 'Menu', () => openPanel('widgets'));
+  add('Open background', 'Menu', () => openPanel('bg'));
+  add('Edit bell schedule', 'Schedule', () => openEditor());
+  if (settings.ab) add('Switch today between A and B', 'Schedule', () => setToday(flip(todayLetter())));
+  [['digital', 'Digital'], ['analog', 'Analog'], ['both', 'Both'], ['flip', 'Flip']].forEach(([v, l]) => add(`Clock style: ${l}`, 'Clock', () => { settings.style = v; save(); applySettings(); tick(); }));
+  add(`${settings.h24 ? '12' : '24'}-hour clock`, 'Clock', () => { settings.h24 = !settings.h24; save(); applySettings(); tick(); });
+  add(`Seconds ${settings.seconds ? 'off' : 'on'}`, 'Clock', () => { settings.seconds = !settings.seconds; save(); applySettings(); tick(); });
+  add(`Clock only ${settings.clockOnly ? 'off' : 'on'}`, 'Clock', () => { settings.clockOnly = !settings.clockOnly; save(); applySettings(); });
+  add(`Text: ${settings.textMode === 'soft' ? 'Bright' : 'Soft'}`, 'Look', () => { settings.textMode = settings.textMode === 'soft' ? 'bright' : 'soft'; save(); applySettings(); });
+  Object.entries(FONTS).forEach(([k, F]) => add(`Font: ${F.label}`, 'Look', () => { settings.font = k; save(); applySettings(); }));
+  [['black', 'Black'], ['tint', 'Tint'], ['dark', 'Dark sky'], ['full', 'Full scene'], ['photo', 'Photo']].forEach(([v, l]) => add(`Sky: ${l}`, 'Background', () => { setBgCfg({ sky: v }); save(); setBg(); if (v === 'photo' && !bgPhoto) openPanel('bg'); }));
+  [['none', 'None'], ['weather', 'Weather'], ['seasonal', 'Seasonal'], ['stars', 'Stars'], ['clouds', 'Clouds'], ['rain', 'Rain'], ['snow', 'Snow']].forEach(([v, l]) => add(`Effects: ${l}`, 'Background', () => { setBgCfg({ effects: v }); save(); setBg(); }));
+  add('Share this layout', 'Share', () => shareLayout());
+  add('Share bell schedule', 'Share', () => shareSchedule());
+  add('Use a schedule code', 'Share', () => importScheduleCode());
+  add('Send feedback', 'Help', () => openFeedback());
+  add('What’s new', 'Help', () => showWhatsNew(true));
+  add('Keyboard shortcuts', 'Help', () => openHelp());
+  add('Run setup', 'Help', () => openSetup());
+  if (cloud.ready) add(cloud.user ? 'Sign out' : 'Sign in', 'Account', () => cloud.user ? $('acctBtn').click() : openAcct());
+  return C;
+}
+function openCmd() {
+  document.body.classList.remove('open');
+  document.body.classList.add('cmd');
+  $('cmdIn').value = '';
+  renderCmd();
+  setTimeout(() => $('cmdIn').focus(), 20);
+}
+const closeCmd = () => { document.body.classList.remove('cmd'); $('cmdIn').blur(); };
+function renderCmd() {
+  const q = $('cmdIn').value.trim().toLowerCase().split(/\s+/).filter(Boolean);
+  const all = cmdCommands();
+  cmdItems = all.filter(c => q.every(w => (c.label + ' ' + c.group).toLowerCase().includes(w)))
+    .sort((a, b) => (q.length && b.label.toLowerCase().startsWith(q[0])) - (q.length && a.label.toLowerCase().startsWith(q[0])));
+  cmdSel = Math.min(cmdSel, Math.max(0, cmdItems.length - 1));
+  const list = $('cmdList');
+  list.innerHTML = '';
+  if (!cmdItems.length) list.append(mk('div', 'cmd-foot', 'No matches'));
+  cmdItems.slice(0, 60).forEach((c, i) => {
+    const row = mk('div', 'cmd-i' + (i === cmdSel ? ' sel' : ''));
+    row.append(mk('span', null, c.label), mk('span', 'g', c.group));
+    row.onmousemove = () => { if (cmdSel !== i) { cmdSel = i; renderCmd(); } };
+    row.onclick = () => runCmd(i);
+    list.append(row);
+  });
+  const sel = list.children[cmdSel];
+  if (sel && sel.scrollIntoView) sel.scrollIntoView({ block: 'nearest' });
+}
+function runCmd(i) {
+  const c = cmdItems[i];
+  if (!c) return;
+  closeCmd();
+  setTimeout(() => c.fn(), 10);
+}
+$('cmdIn').addEventListener('input', () => { cmdSel = 0; renderCmd(); });
+$('cmdIn').addEventListener('keydown', e => {
+  if (e.key === 'ArrowDown') { e.preventDefault(); cmdSel = Math.min(cmdItems.length - 1, cmdSel + 1); renderCmd(); }
+  else if (e.key === 'ArrowUp') { e.preventDefault(); cmdSel = Math.max(0, cmdSel - 1); renderCmd(); }
+  else if (e.key === 'Enter') { e.preventDefault(); runCmd(cmdSel); }
+  else if (e.key === 'Escape') { e.preventDefault(); e.stopPropagation(); closeCmd(); }
+});
+$('cmd').addEventListener('click', e => { if (e.target === $('cmd')) closeCmd(); e.stopPropagation(); });
 
 // shortcut help
 const KEY_ACTIONS = [
@@ -4670,6 +5238,7 @@ function closeSetup() {
   parkInputs();
   document.body.classList.remove('setup');
   settings.setupDone = true;
+  settings.seenVersion = VERSION;
   save();
 }
 function renderSetup() {
@@ -4956,6 +5525,7 @@ async function cloudInit() {
 // start
 fixSettings();
 save();
+setGrid();
 applySettings();
 buildBoard();
 renderWidgetList();
@@ -4963,8 +5533,10 @@ renderLayoutControls();
 if (settings.loc) { lat = settings.loc.lat; lon = settings.loc.lon; loadWeather(); }
 else useAutoLocation();
 setInterval(() => { if (!document.hidden) loadWeather(); }, 30 * 60 * 1000);
-cloudInit().then(() => { if (!settings.setupDone && !cloud.user) renderSetup(); });
+cloudInit().then(() => { if (!settings.setupDone && !cloud.user && document.body.classList.contains('setup')) renderSetup(); });
 if (!settings.setupDone) openSetup();
+else if (settings.seenVersion !== VERSION && !location.hash.startsWith('#layout=')) setTimeout(() => { if (!document.body.classList.contains('gmodal')) showWhatsNew(false); }, 1200);
+setTimeout(checkSharedLayout, 600);
 
 // burn-in
 setInterval(() => {
@@ -5013,6 +5585,13 @@ document.addEventListener('click', () => { document.body.classList.remove('open'
 
 // keyboard shortcuts
 document.addEventListener('keydown', e => {
+  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') {
+    e.preventDefault();
+    if (document.body.classList.contains('cmd')) closeCmd(); else openCmd();
+    return;
+  }
+  if (document.body.classList.contains('cmd')) return;
+  if (document.body.classList.contains('gmodal')) { if (e.key === 'Escape') closeModal(); return; }
   if (document.body.classList.contains('acct')) { if (e.key === 'Escape') closeAcct(); return; }
   if (document.body.classList.contains('setup') || document.body.classList.contains('editing')) {
     if (e.key === 'Escape' && document.body.classList.contains('editing')) closeEditor();
