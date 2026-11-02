@@ -306,6 +306,59 @@
   .al-s { color: #888; margin-top: 6px; }
   .al-box .btns { justify-content: center; margin-top: 20px; }
 
+  .td { display: flex; align-items: baseline; gap: 0.7em; padding: 0.22em 0.45em; margin: 0 -0.45em; color: #999; border-radius: 6px; position: relative; overflow: hidden; }
+  .td .tm { color: #555; font-size: 0.85em; flex: none; min-width: 6.4em; font-variant-numeric: tabular-nums; }
+  .td .nm { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .td .rm { color: #444; font-size: 0.8em; flex: none; }
+  .td.past { color: #3a3a3a; } .td.past .tm, .td.past .rm { color: #2e2e2e; }
+  .td.now { color: #eee; background: #111; } .td.now .tm { color: #aaa; }
+  .td.lunch .nm { color: #8a7a5a; } .td.now.lunch .nm { color: #d9c08a; }
+  .td .pb { position: absolute; left: 0; bottom: 0; height: 2px; background: #555; }
+
+  .t-timeline .wi { padding: 0 0.4em; }
+  .tlw { width: 100%; font-size: calc(min(20cqh, 2.4cqw) * var(--user, 1)); }
+  .tl { position: relative; height: 2.2em; width: 100%; }
+  .tl .sg { position: absolute; top: 0; bottom: 0; background: #121212; border: 1px solid #1e1e1e; border-radius: 0.35em; box-sizing: border-box;
+    display: flex; align-items: center; justify-content: center; overflow: hidden; color: #777; font-size: 0.85em; white-space: nowrap; padding: 0 0.3em; }
+  .tl .sg span { overflow: hidden; text-overflow: ellipsis; }
+  .tl .sg.past { color: #3a3a3a; background: #0b0b0b; }
+  .tl .sg.cur { color: #eee; background: #1d1d1d; border-color: #333; }
+  .tl .sg.lunch { color: #8a7a5a; }
+  .tl .now { position: absolute; top: -0.35em; bottom: -0.35em; width: 2px; background: #ddd; border-radius: 1px; box-shadow: 0 0 6px rgba(255,255,255,0.5); }
+  .tlt { display: flex; justify-content: space-between; color: #4a4a4a; font-size: 0.75em; margin-top: 0.35em; font-variant-numeric: tabular-nums; }
+  .tlmsg { color: var(--c4); font-size: 1em; text-align: center; }
+
+  .ag { display: flex; align-items: baseline; gap: 0.6em; padding: 0.2em 0; color: #aaa; }
+  .ag .tm { color: #666; font-size: 0.85em; flex: none; min-width: 4.8em; font-variant-numeric: tabular-nums; }
+  .ag .tx { flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; cursor: default; }
+  .ag .kd { color: #3e3e3e; font-size: 0.72em; flex: none; text-transform: uppercase; letter-spacing: 0.06em; }
+  .ag.past { color: #3a3a3a; } .ag.past .tm { color: #2e2e2e; }
+  .ag.now { color: #eee; } .ag.now .tm { color: #bbb; }
+  .ag.due .tm { color: #b0554b; }
+
+  .t-search .wi { padding: 0 0.3em; }
+  .srch { display: flex; align-items: center; gap: 0.6em; width: 100%; max-width: 40em; border: 1px solid #1e1e1e; border-radius: 999px; padding: 0.55em 1em; box-sizing: border-box;
+    font-size: calc(min(26cqh, 3.2cqw) * var(--user, 1)); background: rgba(10,10,10,0.6); }
+  .srch:focus-within { border-color: #444; }
+  .srch svg { width: 1em; height: 1em; flex: none; stroke: #555; fill: none; stroke-width: 2; }
+  .srch input { flex: 1; min-width: 0; background: none; border: 0; outline: none; color: #ddd; font: inherit; font-weight: 300; }
+  .srch input::placeholder { color: #444; }
+
+  .w.t-message:not(.card) .wi { white-space: pre-wrap; }
+  .msgt { font-size: calc(min(60cqh, 9cqw) * var(--fit, 1) * var(--user, 1)); font-weight: 300; color: var(--c1); line-height: 1.2; outline: none; word-break: break-word; }
+  .msgt:empty::before { content: 'Double-click to write a message'; color: #333; }
+  .msgt[contenteditable=true] { border-bottom: 1px dashed #444; }
+
+  .hist { width: 100%; text-align: left; display: flex; gap: 0.8em; align-items: baseline; font-size: calc(min(24cqh, 2.6cqw) * var(--fit, 1) * var(--user, 1)); }
+  .w.t-history:not(.card) .wi { white-space: normal; padding: 0 0.5em; }
+  .hist .yr { color: var(--c3); font-weight: 300; flex: none; font-variant-numeric: tabular-nums; }
+  .hist .ev { color: var(--c4); font-weight: 300; line-height: 1.35; }
+  .hist a { color: inherit; text-decoration: none; }
+  .hist a:hover { color: var(--c2); }
+  .hist .lb { color: var(--c5); font-size: 0.75em; letter-spacing: 0.08em; text-transform: uppercase; flex: none; }
+
+  .dprog { color: #555; font-size: 0.8em; letter-spacing: 0.05em; text-transform: none; }
+
   .wk { display: flex; gap: 0.7em; padding: 0.18em 0; color: #555; white-space: nowrap; overflow: hidden; }
   .wk .dn { width: 3.2em; flex: none; }
   .wk .lt { width: 1em; flex: none; color: #888; }
@@ -594,7 +647,7 @@
     <div class="ed-sub" style="margin:2px 0 -4px">Widgets in this layout</div>
     <div id="wlist"></div>
     <div class="row"><span class="sub">Add another</span>
-      <span class="btns"><button class="btn" id="addNote">+ Note</button><button class="btn" id="addCheck">+ Checklist</button></span></div>
+      <span class="btns"><button class="btn" id="addNote">+ Note</button><button class="btn" id="addCheck">+ Checklist</button><button class="btn" id="addDaily">+ Daily</button></span></div>
     <div class="row"><button class="btn primary" id="editLayout">Edit layout <span class="hint" data-kh="edit">(E)</span></button><button class="btn" id="resetLayout">Reset layout</button></div>
   </div>
 
@@ -736,6 +789,13 @@ const DEFAULT_LAYOUT = [
   { id: 'forecast',    type: 'forecast',  c: 9,  r: 6, w: 3, h: 2, on: false },
   { id: 'alarms',      type: 'alarms',    c: 9,  r: 4, w: 3, h: 3, on: false },
   { id: 'planner',     type: 'planner',   c: 9,  r: 1, w: 3, h: 4, on: false },
+  { id: 'today',       type: 'today',     c: 9,  r: 1, w: 3, h: 4, on: false },
+  { id: 'timeline',    type: 'timeline',  c: 2,  r: 7, w: 8, h: 1, on: false },
+  { id: 'agenda',      type: 'agenda',    c: 9,  r: 1, w: 3, h: 4, on: false },
+  { id: 'search',      type: 'search',    c: 3,  r: 7, w: 6, h: 1, on: false },
+  { id: 'daily-1',     type: 'daily',     c: 0,  r: 0, w: 3, h: 3, on: false },
+  { id: 'message',     type: 'message',   c: 2,  r: 6, w: 8, h: 1, on: false },
+  { id: 'history',     type: 'history',   c: 2,  r: 7, w: 8, h: 1, on: false },
 ];
 const DEFAULTS = {
   day: 'A', anchorDate: null, autoAB: true, ab: true,
@@ -2541,6 +2601,278 @@ const TYPES = {
     },
   },
 
+  today: {
+    name: 'Today’s schedule', card: true,
+    build(ref) {
+      ref.head = mk('div', 'ct');
+      ref.list = mk('div', 'list');
+      ref.inner.append(ref.head, ref.list);
+    },
+    update(ref, now) {
+      const k = now.getHours() + ':' + now.getMinutes() + ':' + schedVer + JSON.stringify(ref.it.opt || {});
+      if (ref.k === k) return;
+      ref.k = k;
+      let day = new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      let isToday = true;
+      const B0 = isSchoolDay(day) ? blocksFor(day) : [];
+      const t = now.getHours() * 3600 + now.getMinutes() * 60;
+      if ((!B0.length || t >= B0[B0.length - 1].e) && opt(ref.it, 'next', true)) {
+        const nx = nextSchoolDay(day);
+        if (nx) { day = nx; isToday = false; }
+      }
+      const B = isSchoolDay(day) ? blocksFor(day) : [];
+      const label = isToday ? 'Today' : day.toLocaleDateString('en-US', { weekday: 'long' });
+      const sc = scheduleFor(day);
+      setText(ref.head, [label, settings.ab && B.length ? letterFor(day) + ' Day' : '', sc !== settings.schedules[0] && B.length ? sc.name : ''].filter(Boolean).join(' · '));
+      ref.list.innerHTML = '';
+      if (!B.length) { ref.list.append(mk('div', 'empty', noSchoolOn(day) ? `No school · ${noSchoolOn(day).name || 'day off'}` : 'No school today')); return; }
+      const showRoom = opt(ref.it, 'room', true);
+      for (const b of B) {
+        const past = isToday && t >= b.e, cur = isToday && t >= b.s && t < b.e;
+        const row = mk('div', 'td' + (past ? ' past' : '') + (cur ? ' now' : '') + (/lunch/i.test(b.name) ? ' lunch' : ''));
+        row.append(mk('span', 'tm', `${hmStr(b.s)}–${hmStr(b.e)}`), mk('span', 'nm', b.name));
+        const info = settings.classInfo[b.name];
+        if (showRoom && info && info.room) row.append(mk('span', 'rm', /^\d/.test(info.room) ? 'Rm ' + info.room : info.room));
+        if (cur) {
+          const pb = mk('span', 'pb');
+          pb.style.width = ((now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds() - b.s) / (b.e - b.s) * 100).toFixed(1) + '%';
+          row.append(pb);
+        }
+        ref.list.append(row);
+      }
+    },
+  },
+
+  timeline: {
+    name: 'Day timeline',
+    build(ref) {
+      ref.inner.innerHTML = '<div class="tlw"><div class="tl"></div><div class="tlt"><span class="a"></span><span class="b"></span></div><div class="tlmsg"></div></div>';
+      const q = s => ref.inner.querySelector(s);
+      Object.assign(ref, { tl: q('.tl'), ta: q('.tlt .a'), tb: q('.tlt .b'), msg: q('.tlmsg'), tlt: q('.tlt') });
+    },
+    update(ref, now) {
+      const B = isSchoolDay(now) ? todayBlocks(now) : [];
+      const t = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+      const k = ymd(now) + ':' + schedVer + ':' + (B.findIndex(b => t < b.e)) + JSON.stringify(ref.it.opt || {});
+      if (!B.length) {
+        if (ref.k !== k) { ref.k = k; ref.tl.innerHTML = ''; ref.tl.style.display = 'none'; ref.tlt.style.display = 'none'; setText(ref.msg, isWeekend(now) ? 'No school today · enjoy the weekend' : 'No school today'); }
+        return;
+      }
+      const first = B[0].s, last = B[B.length - 1].e, span = last - first;
+      const pct = v => ((v - first) / span * 100).toFixed(3) + '%';
+      if (ref.k !== k) {
+        ref.k = k;
+        ref.tl.style.display = ''; ref.tlt.style.display = ''; setText(ref.msg, '');
+        ref.tl.innerHTML = '';
+        for (const b of B) {
+          const sg = mk('div', 'sg' + (t >= b.e ? ' past' : '') + (t >= b.s && t < b.e ? ' cur' : '') + (/lunch/i.test(b.name) ? ' lunch' : ''));
+          sg.style.left = pct(b.s);
+          sg.style.width = `calc(${((b.e - b.s) / span * 100).toFixed(3)}% - 2px)`;
+          sg.title = `${b.name} · ${hmStr(b.s)}–${hmStr(b.e)}`;
+          const lab = opt(ref.it, 'short', false) ? b.name.split(/[\s/]+/).map(w => w[0]).join('').slice(0, 3) : b.name;
+          sg.append(mk('span', null, lab));
+          ref.tl.append(sg);
+        }
+        ref.now = mk('div', 'now');
+        ref.tl.append(ref.now);
+        setText(ref.ta, hmStr(first)); setText(ref.tb, hmStr(last));
+      }
+      const inDay = t >= first && t <= last;
+      ref.now.style.display = inDay ? '' : 'none';
+      if (inDay) ref.now.style.left = `calc(${pct(t)} - 1px)`;
+    },
+  },
+
+  agenda: {
+    name: 'Today agenda', card: true,
+    build(ref) {
+      ref.head = mk('div', 'ct', 'Today');
+      ref.list = mk('div', 'list');
+      ref.inner.append(ref.head, ref.list);
+    },
+    update(ref, now) {
+      const showPast = opt(ref.it, 'past', false), inc = k => opt(ref.it, k, true);
+      const k = now.getHours() + ':' + now.getMinutes() + ':' + schedVer + showPast + JSON.stringify(ref.it.opt || {});
+      if (ref.k === k) return;
+      ref.k = k;
+      const nowMin = now.getHours() * 60 + now.getMinutes();
+      const items = [];
+      const seen = new Set();
+      if (inc('classes') && isSchoolDay(now))
+        for (const b of todayBlocks(now)) items.push({ m: b.s / 60, end: b.e / 60, text: b.name, kind: 'class' });
+      for (const it of allItems()) {
+        if (seen.has(it.id)) continue;
+        seen.add(it.id);
+        const d = settings.data[it.id];
+        if (!d) continue;
+        if (it.type === 'reminders' && inc('reminders'))
+          for (const r of d.list || []) if (remOccurs(r, now)) { const [h, m] = r.time.split(':').map(Number); items.push({ m: h * 60 + m, text: r.text, kind: 'reminder' }); }
+        if (it.type === 'alarms' && inc('alarms'))
+          for (const a of d.list || []) if (a.on && remOccurs(a, now) && (a.repeat !== 'once' || a.date === ymd(now))) { const [h, m] = a.time.split(':').map(Number); items.push({ m: h * 60 + m, text: a.label || 'Alarm', kind: 'alarm' }); }
+        if (it.type === 'planner' && inc('planner'))
+          for (const x of d.blocks || []) if (x.days.includes(now.getDay())) { const [h, m] = x.start.split(':').map(Number), [h2, m2] = x.end.split(':').map(Number); items.push({ m: h * 60 + m, end: h2 * 60 + m2, text: x.text, kind: 'plan' }); }
+        if (it.type === 'events' && inc('events'))
+          for (const e of d.list || []) if (e.d.slice(0, 10) === ymd(now)) { const [h, m] = e.d.slice(11, 16).split(':').map(Number); items.push({ m: h * 60 + m, text: e.n, kind: 'event' }); }
+        if (it.type === 'homework' && inc('homework'))
+          for (const a of d.list || []) if (!a.done && a.due && a.due.slice(0, 10) === ymd(now)) {
+            const hasT = a.due.length > 10;
+            const [h, m] = hasT ? a.due.slice(11, 16).split(':').map(Number) : [-1, 0];
+            items.push({ m: hasT ? h * 60 + m : -1, text: a.t + (a.cls ? ` · ${a.cls}` : ''), kind: 'due' });
+          }
+      }
+      items.sort((a, b) => a.m - b.m);
+      ref.list.innerHTML = '';
+      let shown = 0;
+      for (const x of items) {
+        const past = x.m >= 0 && (x.end != null ? nowMin >= x.end : nowMin > x.m);
+        const cur = x.end != null && nowMin >= x.m && nowMin < x.end;
+        if (past && !showPast) continue;
+        shown++;
+        const row = mk('div', 'ag' + (past ? ' past' : '') + (cur ? ' now' : '') + (x.kind === 'due' ? ' due' : ''));
+        const tm = x.m < 0 ? 'Due' : clockStr(Math.floor(x.m / 60), x.m % 60);
+        const kd = { class: 'class', reminder: 'reminder', alarm: 'alarm', plan: 'plan', event: 'event', due: 'homework' }[x.kind];
+        row.append(mk('span', 'tm', tm), mk('span', 'tx', x.text), mk('span', 'kd', kd));
+        ref.list.append(row);
+      }
+      if (!shown) ref.list.append(mk('div', 'empty', items.length ? 'All done for today' : 'Nothing on today'));
+    },
+  },
+
+  search: {
+    name: 'Search box',
+    build(ref) {
+      const box = mk('form', 'srch');
+      box.innerHTML = '<svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>';
+      const inp = mk('input');
+      inp.type = 'search'; inp.placeholder = 'Search the web'; inp.autocomplete = 'off'; inp.spellcheck = false;
+      box.append(inp);
+      box.onsubmit = e => {
+        e.preventDefault();
+        const q = inp.value.trim();
+        if (!q) return;
+        const eng = opt(ref.it, 'engine', 'google');
+        const base = { google: 'https://www.google.com/search?q=', ddg: 'https://duckduckgo.com/?q=', bing: 'https://www.bing.com/search?q=', brave: 'https://search.brave.com/search?q=' }[eng];
+        const url = /^(https?:\/\/|www\.)\S+$/i.test(q) ? (q.startsWith('http') ? q : 'https://' + q) : base + encodeURIComponent(q);
+        if (opt(ref.it, 'newtab', true)) window.open(url, '_blank', 'noopener'); else location.href = url;
+        inp.value = ''; inp.blur();
+      };
+      inp.addEventListener('keydown', e => { if (e.key === 'Escape') { inp.value = ''; inp.blur(); } });
+      ref.inner.append(box);
+      ref.input = inp;
+      inp.placeholder = 'Search ' + ({ google: 'Google', ddg: 'DuckDuckGo', bing: 'Bing', brave: 'Brave' }[opt(ref.it, 'engine', 'google')]);
+    },
+  },
+
+  daily: {
+    name: 'Daily checklist', card: true, multi: true,
+    data: { title: 'Every day', items: [], doneDay: '', done: [] },
+    build(ref, d) {
+      const head = mk('div', 'ct');
+      head.append(editableTitle(ref, d, 'Every day'));
+      ref.prog = mk('span', 'dprog');
+      head.append(ref.prog);
+      ref.list = mk('div', 'list');
+      const add = mk('input', 'cin');
+      add.placeholder = 'Add something you do every day';
+      add.addEventListener('keydown', e => {
+        if (e.key !== 'Enter' || !add.value.trim()) return;
+        d.items.push({ id: 'd' + Date.now().toString(36), t: add.value.trim() });
+        add.value = ''; save(); ref.redraw();
+      });
+      ref.inner.append(head, ref.list, add);
+      ref.redraw = () => {
+        dailyReset(ref.it, d);
+        ref.list.innerHTML = '';
+        const done = new Set(d.done);
+        setText(ref.prog, d.items.length ? `${d.items.filter(i => done.has(i.id)).length} of ${d.items.length}` : '');
+        d.items.forEach((item, idx) => {
+          const isDone = done.has(item.id);
+          const row = mk('div', 'it row-h' + (isDone ? ' done' : ''));
+          const toggle = () => { d.done = isDone ? d.done.filter(x => x !== item.id) : [...d.done, item.id]; save(); ref.redraw(); };
+          const bx = mk('span', 'bx'); bx.onclick = toggle;
+          const tx = mk('span', 'tx', item.t);
+          let timer = null;
+          tx.onclick = () => { clearTimeout(timer); timer = setTimeout(toggle, 230); };
+          tx.ondblclick = () => {
+            clearTimeout(timer);
+            const v = prompt('Edit item', item.t);
+            if (v == null) return;
+            if (v.trim()) item.t = v.trim(); else d.items.splice(idx, 1);
+            save(); ref.redraw();
+          };
+          const del = mk('span', 'del', '×');
+          del.onclick = () => { d.items.splice(idx, 1); d.done = d.done.filter(x => x !== item.id); save(); ref.redraw(); };
+          row.append(bx, tx, del);
+          ref.list.append(row);
+        });
+        if (!d.items.length) ref.list.append(mk('div', 'empty', 'Things to do every day, like "pack bag"'));
+      };
+      ref.redraw();
+    },
+    update(ref) {
+      const d = dataFor(ref.it);
+      if (d.doneDay !== dailyKey(ref.it)) ref.redraw();
+    },
+  },
+
+  message: {
+    name: 'Message board',
+    data: { text: '' },
+    build(ref, d) {
+      const t = mk('div', 'msgt');
+      t.textContent = d.text || '';
+      t.title = 'Double-click to edit';
+      t.addEventListener('dblclick', e => {
+        e.stopPropagation();
+        if (document.body.classList.contains('layout-edit')) return;
+        t.contentEditable = 'true';
+        t.focus();
+        const r = document.createRange(); r.selectNodeContents(t);
+        const sel = getSelection(); sel.removeAllRanges(); sel.addRange(r);
+      });
+      t.addEventListener('keydown', e => {
+        if (e.key === 'Escape' || (e.key === 'Enter' && !e.shiftKey)) { e.preventDefault(); t.blur(); }
+      });
+      t.addEventListener('blur', () => {
+        if (t.contentEditable !== 'true') return;
+        t.contentEditable = 'false';
+        d.text = t.innerText.replace(/\n+$/, '');
+        t.textContent = d.text;
+        save(); ref.k = '';
+        fitText(ref, true);
+      });
+      ref.inner.append(t);
+      ref.msg = t;
+    },
+  },
+
+  history: {
+    name: 'On this day',
+    build(ref) {
+      ref.inner.innerHTML = '<div class="hist"><span class="lb">On this day</span><span class="yr"></span><span class="ev"></span></div>';
+      ref.yr = ref.inner.querySelector('.yr'); ref.ev = ref.inner.querySelector('.ev');
+      ref.lb = ref.inner.querySelector('.lb');
+    },
+    update(ref, now) {
+      const every = opt(ref.it, 'every', 'day');
+      const slot = every === 'hour' ? now.getHours() : every === '15' ? Math.floor((now.getHours() * 60 + now.getMinutes()) / 15) : 0;
+      const k = ymd(now) + ':' + slot + opt(ref.it, 'label', true);
+      if (ref.k === k) return;
+      ref.k = k;
+      ref.lb.style.display = opt(ref.it, 'label', true) ? '' : 'none';
+      loadHistory(now).then(list => {
+        if (!list || !list.length) { setText(ref.yr, ''); setText(ref.ev, 'Couldn’t load today in history'); return; }
+        const seed = Number(ymd(now).replace(/-/g, '')) + slot * 7;
+        const e = list[seed % list.length];
+        setText(ref.yr, String(e.year));
+        ref.ev.innerHTML = '';
+        if (e.url) { const a = mk('a', null, e.text); a.href = e.url; a.target = '_blank'; a.rel = 'noopener'; ref.ev.append(a); }
+        else setText(ref.ev, e.text);
+        fitText(ref, true);
+      });
+    },
+  },
+
   week: {
     name: 'Week schedule', card: true,
     build(ref) {
@@ -2673,6 +3005,51 @@ function habitStreak(h, now, weekends) {
     n++; d.setDate(d.getDate() - 1);
   }
   return n;
+}
+
+// daily checklist helpers
+const dailyKey = it => {
+  const n = new Date();
+  if (opt(it, 'reset', '0') === '4' && n.getHours() < 4) n.setDate(n.getDate() - 1);
+  return ymd(n);
+};
+function dailyReset(it, d) {
+  const k = dailyKey(it);
+  if (d.doneDay !== k) { d.doneDay = k; d.done = []; save(); }
+}
+
+// on this day (Wikipedia)
+const histCache = {};
+function loadHistory(now) {
+  const mm = String(now.getMonth() + 1).padStart(2, '0'), dd = String(now.getDate()).padStart(2, '0');
+  const key = mm + dd;
+  if (histCache[key]) return histCache[key];
+  try {
+    const saved = JSON.parse(localStorage.getItem('clockHistory') || 'null');
+    if (saved && saved.key === key && saved.list.length) return (histCache[key] = Promise.resolve(saved.list));
+  } catch (e) {}
+  const urls = [`https://en.wikipedia.org/api/rest_v1/feed/onthisday/selected/${mm}/${dd}`,
+                `https://api.wikimedia.org/feed/v1/wikipedia/en/onthisday/selected/${mm}/${dd}`];
+  histCache[key] = (async () => {
+    for (const u of urls) {
+      try {
+        const r = await fetch(u);
+        if (!r.ok) continue;
+        const j = await r.json();
+        const list = (j.selected || j.events || []).filter(e => e.text && e.year).map(e => ({
+          year: e.year, text: e.text.trim(),
+          url: e.pages && e.pages[0] && e.pages[0].content_urls ? e.pages[0].content_urls.desktop.page : '',
+        }));
+        if (list.length) {
+          try { localStorage.setItem('clockHistory', JSON.stringify({ key, list })); } catch (e) {}
+          return list;
+        }
+      } catch (e) {}
+    }
+    delete histCache[key];
+    return [];
+  })();
+  return histCache[key];
 }
 
 // reminder helpers
@@ -2959,16 +3336,16 @@ $('layMore').onclick = e => {
 };
 const PRESETS = {
   minimal: [['clock', 3, 2, 6, 3], ['date', 3, 5, 6, 1], ['weather', 3, 6, 6, 1]],
-  student: [['clock', 3, 0, 6, 2], ['classes', 3, 2, 6, 1], ['date', 3, 3, 6, 1], ['weather', 3, 4, 6, 1], ['sun', 3, 5, 6, 1],
-            ['homework', 0, 0, 3, 5], ['checklist', 0, 5, 3, 3], ['week', 9, 0, 3, 2], ['calendar', 9, 2, 3, 3], ['battery', 9, 7, 3, 1]],
-  focus: [['clock', 3, 0, 6, 2], ['classes', 3, 2, 6, 1], ['pomo', 4, 3, 4, 3], ['checklist', 0, 0, 3, 4], ['habits', 9, 0, 3, 3]],
-  home: [['clock', 3, 1, 6, 2], ['date', 3, 3, 6, 1], ['weather', 3, 4, 6, 1], ['forecast', 3, 5, 6, 2],
+  student: [['clock', 3, 0, 6, 2], ['classes', 3, 2, 6, 1], ['timeline', 3, 3, 6, 1], ['date', 3, 4, 6, 1], ['weather', 3, 5, 6, 1],
+            ['search', 3, 7, 6, 1], ['homework', 0, 0, 3, 5], ['checklist', 0, 5, 3, 3], ['today', 9, 0, 3, 4], ['calendar', 9, 4, 3, 3], ['battery', 9, 7, 3, 1]],
+  focus: [['clock', 3, 0, 6, 2], ['classes', 3, 2, 6, 1], ['pomo', 4, 3, 4, 3], ['checklist', 0, 0, 3, 4], ['daily', 0, 4, 3, 3], ['habits', 9, 0, 3, 3], ['agenda', 9, 3, 3, 4]],
+  home: [['clock', 3, 1, 6, 2], ['date', 3, 3, 6, 1], ['weather', 3, 4, 6, 1], ['forecast', 3, 5, 6, 2], ['history', 3, 7, 6, 1],
          ['planner', 0, 0, 3, 5], ['homework', 0, 5, 3, 3], ['habits', 9, 0, 3, 3], ['alarms', 9, 3, 3, 3], ['reminders', 9, 6, 3, 2]],
-  classroom: [['clock', 1, 0, 10, 4], ['classes', 1, 4, 10, 2], ['date', 2, 6, 8, 1], ['daysleft', 2, 7, 8, 1]],
+  classroom: [['clock', 1, 0, 10, 3], ['classes', 1, 3, 10, 2], ['timeline', 1, 5, 10, 1], ['message', 1, 6, 10, 1], ['date', 2, 7, 8, 1]],
   bedside: [['clock', 3, 1, 6, 3], ['date', 3, 4, 6, 1], ['weather', 3, 5, 6, 1], ['sun', 3, 6, 6, 1],
             ['alarms', 0, 0, 3, 3], ['forecast', 9, 0, 3, 2], ['battery', 10, 7, 2, 1]],
   planner: [['clock', 3, 0, 6, 2], ['date', 3, 2, 6, 1], ['week', 3, 3, 6, 3], ['classes', 3, 6, 6, 1], ['events', 3, 7, 6, 1],
-            ['homework', 0, 0, 3, 5], ['reminders', 0, 5, 3, 3], ['planner', 9, 0, 3, 4], ['calendar', 9, 4, 3, 4]],
+            ['homework', 0, 0, 3, 5], ['reminders', 0, 5, 3, 3], ['agenda', 9, 0, 3, 4], ['planner', 9, 4, 3, 4]],
   weather: [['clock', 3, 0, 6, 2], ['weather', 3, 2, 6, 1], ['hourly', 2, 3, 8, 2], ['forecast', 2, 5, 8, 2], ['sun', 3, 7, 6, 1]],
   packed: [['clock', 3, 0, 6, 2], ['classes', 3, 2, 6, 1], ['date', 3, 3, 6, 1], ['weather', 3, 4, 6, 1], ['sun', 3, 5, 6, 1],
            ['progress', 3, 6, 6, 2], ['homework', 0, 0, 3, 4], ['checklist', 0, 4, 3, 4], ['calendar', 9, 0, 3, 3],
@@ -3452,6 +3829,52 @@ function widgetOptions(it) {
         optSeg('Hours ahead/behind', ONOFF, O('diff', true), S('diff')),
         optSeg('Show day if different', ONOFF, O('day', true), S('day')));
       break;
+    case 'today':
+      rows.push(
+        optSeg('After school', [[true, 'Show next day'], [false, 'Keep today']], O('next', true), S('next')),
+        optSeg('Rooms', ONOFF, O('room', true), S('room')));
+      break;
+    case 'timeline':
+      rows.push(optSeg('Labels', [[false, 'Full names'], [true, 'Short']], O('short', false), S('short')));
+      break;
+    case 'agenda':
+      rows.push(
+        optSeg('Finished items', [[false, 'Hide'], [true, 'Show']], O('past', false), S('past')),
+        optSeg('Classes', ONOFF, O('classes', true), S('classes')),
+        optSeg('Homework due', ONOFF, O('homework', true), S('homework')),
+        optSeg('Reminders', ONOFF, O('reminders', true), S('reminders')),
+        optSeg('Alarms', ONOFF, O('alarms', true), S('alarms')),
+        optSeg('Evening planner', ONOFF, O('planner', true), S('planner')),
+        optSeg('Event countdowns', ONOFF, O('events', true), S('events')),
+        mk('div', 'sub', 'Pulls from your other widgets, even ones that are turned off.'));
+      break;
+    case 'search':
+      rows.push(
+        optSeg('Search with', [['google', 'Google'], ['ddg', 'DuckDuckGo'], ['bing', 'Bing'], ['brave', 'Brave']], O('engine', 'google'), S('engine')),
+        optSeg('Open results', [[true, 'New tab'], [false, 'Same tab']], O('newtab', true), S('newtab')));
+      break;
+    case 'daily':
+      rows.push(
+        optSeg('Unchecks at', [['0', 'Midnight'], ['4', '4 AM']], O('reset', '0'), S('reset')),
+        optBtn('Check marks', 'Uncheck all', () => { dataFor(it).done = []; afterOptChange(); }));
+      break;
+    case 'message': {
+      const ta = mk('textarea');
+      ta.value = dataFor(it).text || '';
+      ta.rows = 3;
+      ta.style.cssText = 'width:100%;box-sizing:border-box;background:#111;border:1px solid #222;border-radius:6px;color:#ddd;font:inherit;padding:6px 8px;resize:vertical';
+      ta.placeholder = 'Type your message';
+      ta.oninput = () => { dataFor(it).text = ta.value; const r = refs.find(x => x.it === it); if (r) { r.msg.textContent = ta.value; fitText(r, true); } };
+      ta.onchange = () => save();
+      rows.push(mk('div', 'sub', 'Message'), ta, mk('div', 'sub', 'You can also double-click the message on the clock to edit it.'));
+      break;
+    }
+    case 'history':
+      rows.push(
+        optSeg('New fact every', [['day', 'Day'], ['hour', 'Hour'], ['15', '15 min']], O('every', 'day'), S('every')),
+        optSeg('"On this day" label', ONOFF, O('label', true), S('label')),
+        mk('div', 'sub', 'From Wikipedia’s "On this day". Click the fact to read more.'));
+      break;
     case 'week':
       rows.push(optSeg('Class names', ONOFF, O('classes', true), S('classes')));
       break;
@@ -3530,6 +3953,7 @@ function addCard(type) {
 }
 $('addNote').onclick = e => { e.stopPropagation(); addCard('notes'); };
 $('addCheck').onclick = e => { e.stopPropagation(); addCard('checklist'); };
+$('addDaily').onclick = e => { e.stopPropagation(); addCard('daily'); };
 $('resetLayout').onclick = () => {
   if (!confirm('Move every widget in this layout back to where it started?')) return;
   for (const it of settings.layout) {
