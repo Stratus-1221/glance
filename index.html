@@ -554,6 +554,28 @@
   .su-text { color: #888; line-height: 1.55; }
   .su-tips { margin: 0; padding-left: 18px; line-height: 1.8; color: #999; }
   .su-dots { color: #444; }
+  .su-list { margin: 0; padding-left: 18px; line-height: 1.75; color: #aaa; }
+  .su-list b { color: #ddd; font-weight: 400; }
+  .su-small { color: #555; font-size: 12px; line-height: 1.5; }
+  .su-presets { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .su-presets button { text-align: left; padding: 8px 10px; line-height: 1.35; }
+  .su-presets button span { display: block; color: #666; font-size: 12px; }
+  .su-presets button.on { border-color: #777; background: #161616; color: #fff; }
+  .su-ok { color: #8fcf9c; }
+  /* guided tour */
+  #tour { position: fixed; inset: 0; z-index: 40; display: none; font: 13px -apple-system, "Segoe UI", Roboto, sans-serif; }
+  body.tour #tour { display: block; }
+  body.tour #gear, body.tour #bgbtn, body.tour #wbtn { opacity: 1; pointer-events: auto; }
+  body.tour, body.tour * { cursor: default; }
+  #tourRing { position: fixed; pointer-events: none; border-radius: 12px; box-shadow: 0 0 0 9999px rgba(0,0,0,0.62); border: 1px solid #888;
+              transition: left 0.25s, top 0.25s, width 0.25s, height 0.25s; }
+  #tourRing.none { width: 0 !important; height: 0 !important; border: 0; left: 50% !important; top: 50% !important; }
+  #tourCard { position: fixed; width: 300px; max-width: calc(100vw - 32px); box-sizing: border-box; pointer-events: auto;
+              background: #0b0b0b; border: 1px solid #2a2a2a; border-radius: 10px; padding: 14px 16px; color: #999; line-height: 1.55;
+              transition: left 0.25s, top 0.25s; }
+  #tourCard .tt { color: #eee; font-size: 15px; margin-bottom: 6px; }
+  #tourCard .ed-actions { margin-top: 12px; }
+  #tourCard kbd { border: 1px solid #333; border-radius: 4px; padding: 0 5px; color: #ddd; font: inherit; font-size: 12px; }
   #setup .row { gap: 14px; }
   #setup input[type=text] { background: #111; border: 1px solid #222; border-radius: 6px; color: #ccc; font: inherit; padding: 4px 6px; color-scheme: dark; }
   .keys { display: grid; grid-template-columns: auto 1fr; gap: 8px 14px; align-items: center; }
@@ -870,7 +892,7 @@
     <div class="row"><span>Share</span>
       <span class="btns"><button class="btn" id="shareLayBtn">Layout link</button><button class="btn" id="shareSchBtn">Schedule code</button></span></div>
     <div class="row"><span>Help</span>
-      <span class="btns"><button class="btn" id="setupBtn">Setup</button><button class="btn" id="newsBtn">What’s new</button><button class="btn" id="fbBtn">Feedback</button><button class="btn" id="helpBtn">Shortcuts <span class="hint" data-kh="help">(?)</span></button></span></div>
+      <span class="btns"><button class="btn" id="setupBtn">Setup</button><button class="btn" id="tourBtn">Tour</button><button class="btn" id="newsBtn">What’s new</button><button class="btn" id="fbBtn">Feedback</button><button class="btn" id="helpBtn">Shortcuts <span class="hint" data-kh="help">(?)</span></button></span></div>
     <input type="file" id="fileIn" accept=".json,application/json" hidden>
     <div class="sub">Widget settings live in Edit layout. Press E, then click the gear on any widget.</div>
     <div class="verline" id="verLine" title="What’s new"></div>
@@ -946,6 +968,7 @@
 </div></div>
 
 <div id="setup"><div class="ed-box su-box" id="setupBox"></div></div>
+<div id="tour"><div id="tourRing"></div><div id="tourCard"></div></div>
 
 <div id="help">
   <div class="ed-box help-box">
@@ -5890,7 +5913,7 @@ $('fbBtn').onclick = e => { e.stopPropagation(); openFeedback(); };
 // what's new
 const VERSION = '1.9';
 const CHANGELOG = [
-  { v: '1.9', items: ['Metronome with tap tempo', 'Tuner for viola, violin, cello, bass and guitar', 'Quick links', 'Flashcards', 'Weather alert banner for warnings near you', 'Polyrhythm trainer', 'Metronome and polyrhythm vibrate on phones', 'Music preset', 'Sync button, and sync merges changes from all your computers', 'Version number at the bottom of Settings'] },
+  { v: '1.9', items: ['Metronome with tap tempo', 'Tuner for viola, violin, cello, bass and guitar', 'Quick links', 'Flashcards', 'Weather alert banner for warnings near you', 'Polyrhythm trainer', 'New setup with presets and sign-in, plus a guided tour (Settings → Help → Tour)', 'Metronome and polyrhythm vibrate on phones', 'Music preset', 'Sync button, and sync merges changes from all your computers', 'Version number at the bottom of Settings'] },
   { v: '1.8', items: ['Share a link to your layout, or a code for your bell schedule', 'Send feedback from Settings', 'Phone layout: widgets stack in one column', 'Ctrl+K searches every widget and setting', 'Fine grid for exact placement', 'A dozen fonts', 'Your own photo as the background', 'Seasonal effects: leaves, snow, petals, fireflies', 'Each layout can have its own background', 'Ring look for the class countdown', 'Alarm sounds you can pick'] },
   { v: '1.7', items: ['Bright text mode', 'On this day skips grim events and can show birthdays', 'Today’s schedule, day timeline, today agenda, search box, daily checklist, message board, On this day widgets'] },
   { v: '1.6', items: ['Keep me signed in', 'Background button', 'More presets'] },
@@ -5956,6 +5979,7 @@ function cmdCommands() {
   add('What’s new', 'Help', () => showWhatsNew(true));
   add('Keyboard shortcuts', 'Help', () => openHelp());
   add('Run setup', 'Help', () => openSetup());
+  add('Take the tour', 'Help', () => startTour());
   if (cloud.ready) add(cloud.user ? 'Sign out' : 'Sign in', 'Account', () => cloud.user ? $('acctBtn').click() : openAcct());
   if (cloud.ready && cloud.user) add('Sync now', 'Account', () => syncNow());
   return C;
@@ -6037,8 +6061,9 @@ $('help').addEventListener('click', e => { if (e.target === $('help')) closeHelp
 
 // first-time setup
 let setupStep = 0;
+var setupPreset = '', setupSnap = null;
 function openSetup() {
-  setupStep = 0;
+  setupStep = 0; setupPreset = ''; setupSnap = null;
   document.body.classList.remove('open');
   document.body.classList.add('setup');
   renderSetup();
@@ -6065,9 +6090,18 @@ function renderSetup() {
   const actions = mk('div', 'ed-actions');
   const spacer = mk('span'); spacer.style.flex = '1';
 
+  const N = 6, dots = i => mk('span', 'su-dots', `${i} of ${N}`);
+  const list = items => { const ul = mk('ul', 'su-list'); items.forEach(h => { const li = mk('li'); li.innerHTML = h; ul.append(li); }); box.append(ul); };
+  const small = t => box.append(mk('div', 'su-small', t));
+
   if (setupStep === 0) {
     title('Welcome to glance');
-    text('glance turns your screen into a minimal clock with your class schedule, the weather and handy widgets. Let\u2019s set it up for your school. It takes about a minute.');
+    text('glance turns any screen into a calm, minimal clock for school. Leave it open on a spare monitor, a laptop in class or your phone.');
+    list(['<b>Your bell schedule</b> with what’s now, what’s next and how long is left',
+          '<b>Widgets</b> you can move anywhere: homework, weather, timers, a metronome and tuner, flashcards and more',
+          '<b>Layouts and backgrounds</b> for school, home or bedtime',
+          '<b>An optional account</b> that syncs everything between your computers']);
+    small('It’s free and runs in your browser. Nothing leaves this computer unless you sign in.');
     actions.append(edBtn('Skip setup', 'btn', closeSetup), spacer);
     if (cloud.ready) actions.append(edBtn('I have an account', 'btn', () => { closeSetup(); openAcct(); }));
     actions.append(edBtn('Start', 'btn primary', () => { setupStep = 1; renderSetup(); }));
@@ -6080,12 +6114,12 @@ function renderSetup() {
       box.append(optNode(label, seg([['A', 'A day'], ['B', 'B day']], todayLetter(), v => { settings.day = v; settings.anchorDate = ymd(new Date()); })));
       text('It switches by itself every school day after this.');
     }
-    actions.append(go(0), mk('span', 'su-dots', '1 of 3'), spacer, go(2));
+    actions.append(go(0), dots(1), spacer, go(2));
   } else if (setupStep === 2) {
     title('Your bell schedule');
-    text('It starts with an example. Change the times and class names to match yours. You can also add extra schedules, like late start days, and your school\u2019s days off.');
+    text('It starts with an example. Change the times and class names to match yours. You can also add extra schedules, like late start days, and your school’s days off.');
     const r = mk('div', 'btns');
-    r.append(edBtn('Edit schedule\u2026', 'btn primary', () => openEditor()),
+    r.append(edBtn('Edit schedule…', 'btn primary', () => openEditor()),
       edBtn('Start from blank', 'btn', () => {
         if (!confirm('Remove the example classes and start with an empty schedule?')) return;
         const sc = settings.schedules[0];
@@ -6094,26 +6128,130 @@ function renderSetup() {
         save(); openEditor();
       }));
     box.append(r);
-    actions.append(go(1), mk('span', 'su-dots', '2 of 3'), spacer, go(3));
+    small('Got a code from a friend at your school? Use Settings → Share → Schedule code later to copy theirs.');
+    actions.append(go(1), dots(2), spacer, go(3));
   } else if (setupStep === 3) {
     title('Weather');
-    text('Type your zip code or town and press Enter, then pick it from the list. Leave it empty to use your browser\u2019s location.');
+    text('Type your zip code or town and press Enter, then pick it from the list. Leave it empty to use your browser’s location.');
     box.append(optNode('Location', $('locBox')), $('locResults'));
-    actions.append(go(2), mk('span', 'su-dots', '3 of 3'), spacer, go(4));
+    actions.append(go(2), dots(3), spacer, go(4));
+  } else if (setupStep === 4) {
+    title('Pick a starting layout');
+    text('You can change everything later. This just decides which widgets you start with.');
+    const g = mk('div', 'su-presets');
+    if (!setupSnap) setupSnap = clone(settings.layout);
+    [['', settings.setupDone ? 'Keep my layout' : 'Keep the default', settings.setupDone ? 'Don\u2019t change anything' : 'Clock, classes, date, weather, a checklist and a note'],
+     ['student', 'Student', 'Homework, today’s classes, calendar, search'],
+     ['focus', 'Focus', 'Study timer, checklists, habits'],
+     ['planner', 'Planner', 'Week view, homework, tonight’s plan'],
+     ['home', 'Home', 'Forecast, alarms, reminders, habits'],
+     ['music', 'Music', 'Metronome, tuner, polyrhythm, flashcards'],
+     ['minimal', 'Minimal', 'Just the clock, date and weather'],
+     ['classroom', 'Classroom', 'A big clock for the front of a room']].forEach(([k, name, sub]) => {
+      const bt = edBtn('', 'btn' + (setupPreset === k ? ' on' : ''), () => {
+        setupPreset = k;
+        if (k) applyPreset(k);
+        else { settings.layout.splice(0, settings.layout.length, ...clone(setupSnap)); save(); buildBoard(); renderWidgetList(); }
+        renderSetup();
+      });
+      bt.append(name, mk('span', null, sub));
+      g.append(bt);
+    });
+    box.append(g);
+    actions.append(go(3), dots(4), spacer, go(5));
+  } else if (setupStep === 5) {
+    title('Sync between computers');
+    text('Optional. Make a free account with any email and your clock, homework and notes follow you to every computer and your phone.');
+    if (!FIREBASE_CONFIG || !cloud.ready) small(location.protocol === 'file:' ? 'Accounts work on the website version of glance.' : 'Accounts are still loading. You can sign in later from Settings.');
+    else if (cloud.user) box.append(mk('div', 'su-ok', `Signed in as ${cloud.user.email}`));
+    else { const r = mk('div', 'btns'); r.append(edBtn('Sign in or create account', 'btn primary', () => openAcct())); box.append(r); }
+    small('Synced data is stored in glance’s Firebase database. Only you can open it from the site. The person who runs glance can see the database in Google’s admin console, but doesn’t look at or share it. Backups: Settings → Backup file → Save.');
+    actions.append(go(4), dots(5), spacer, go(6));
   } else {
-    title('You\u2019re all set');
-    const ul = mk('ul', 'su-tips');
-    ['Move your mouse to show the gear in the bottom-right corner. That\u2019s where the settings are.',
-     'Press E to move, resize and set up widgets. Each one has its own gear.',
-     'Turn widgets on and off in the gear\u2019s Widgets tab.',
-     'Press ? any time to see all the shortcuts.',
-     'Double-click to go fullscreen.'].forEach(t => ul.append(mk('li', null, t)));
-    box.append(ul);
-    actions.append(go(3), spacer, edBtn('Done', 'btn primary', closeSetup));
+    title('You’re all set');
+    text('Want a quick tour of where everything is? It takes about 30 seconds.');
+    list(['Move your mouse to show the buttons in the bottom-right corner',
+          'Press <b>E</b> to move and resize widgets',
+          'Press <b>Ctrl+K</b> to search for any setting or widget',
+          'Press <b>?</b> for all the shortcuts, and double-click for fullscreen']);
+    actions.append(go(5), dots(6), spacer, edBtn('Skip tour', 'btn', closeSetup), edBtn('Take the tour', 'btn primary', () => { closeSetup(); startTour(); }));
   }
   box.append(actions);
 }
 $('setupBtn').onclick = e => { e.stopPropagation(); openSetup(); };
+$('tourBtn').onclick = e => { e.stopPropagation(); document.body.classList.remove('open'); startTour(); };
+
+// guided tour
+const TOUR = [
+  { el: () => document.querySelector('#board .w.t-clock') || document.querySelector('#board .w'), t: 'Widgets', d: 'Everything on the screen is a widget: the clock, your classes, the weather. You choose which ones show and where they go.' },
+  { el: () => document.querySelector('#board .w.t-classes'), t: 'Your classes', d: 'Shows the class you’re in, how long is left and what’s next. It follows your bell schedule and A/B days by itself.' },
+  { el: () => $('gear'), t: 'Settings', d: 'Text, fonts, your bell schedule, weather location, your account, backups and sharing. The round arrows at the top sync with your other computers.' },
+  { el: () => $('wbtn'), t: 'Widgets and layouts', d: 'Turn widgets on and off, start from a preset, or make several layouts, like one for school and one for home.' },
+  { el: () => $('bgbtn'), t: 'Background', d: 'Pick a sky that follows the time of day and the weather, your own photo, or effects like stars and snow.' },
+  { el: () => document.querySelector('#board .w .wset'), edit: true, t: 'Edit layout', d: 'Press <kbd>E</kbd> to edit. Drag a widget to move it, drag its corner to resize it, and click its gear for its own settings. Press <kbd>E</kbd> again when you’re done.' },
+  { el: null, t: 'Search anything', d: 'Press <kbd>Ctrl</kbd> + <kbd>K</kbd> to find any setting or widget by name. Press <kbd>?</kbd> for every shortcut, and double-click anywhere for fullscreen.' },
+  { el: null, t: 'That’s it', d: 'You can see this tour again from Settings → Help → Tour. Have fun.' },
+];
+let tourStep = -1, tourEdit = false;
+function startTour() {
+  closePop(); closeModal && closeModal();
+  document.body.classList.remove('open', 'setup', 'help');
+  document.body.classList.add('tour');
+  tourStep = 0; showTourStep();
+}
+function endTour() {
+  if (tourEdit) { setLayoutEdit(false); tourEdit = false; }
+  document.body.classList.remove('tour');
+  tourStep = -1;
+}
+function showTourStep() {
+  const st = TOUR[tourStep];
+  if (!st) return endTour();
+  const wantEdit = !!st.edit && innerWidth > 700 && !settings.locked;
+  if (wantEdit && !tourEdit) { setLayoutEdit(true); tourEdit = true; }
+  if (!wantEdit && tourEdit) { setLayoutEdit(false); tourEdit = false; }
+  document.body.classList.add('tour');
+  const el = st.el && st.el();
+  const ring = $('tourRing'), card = $('tourCard');
+  card.innerHTML = '';
+  const tt = mk('div', 'tt', st.t), dd = mk('div');
+  dd.innerHTML = st.d;
+  const act = mk('div', 'ed-actions');
+  const sp = mk('span'); sp.style.flex = '1';
+  act.append(mk('span', 'su-dots', `${tourStep + 1} of ${TOUR.length}`), sp);
+  if (tourStep < TOUR.length - 1) act.append(edBtn('Skip', 'btn', endTour));
+  if (tourStep > 0) act.append(edBtn('Back', 'btn', () => { tourStep--; showTourStep(); }));
+  act.append(edBtn(tourStep === TOUR.length - 1 ? 'Done' : 'Next', 'btn primary', () => { tourStep++; showTourStep(); }));
+  card.append(tt, dd, act);
+  const r = el && el.getBoundingClientRect();
+  if (!r || !r.width) {
+    ring.className = 'none';
+    card.style.left = Math.max(16, (innerWidth - card.offsetWidth) / 2) + 'px';
+    card.style.top = Math.max(16, (innerHeight - card.offsetHeight) / 2) + 'px';
+    return;
+  }
+  ring.className = '';
+  const pad = 6;
+  Object.assign(ring.style, { left: (r.left - pad) + 'px', top: (r.top - pad) + 'px', width: (r.width + pad * 2) + 'px', height: (r.height + pad * 2) + 'px' });
+  const cw = card.offsetWidth, ch = card.offsetHeight, gap = 14;
+  let top = r.bottom + pad + gap;
+  if (top + ch > innerHeight - 16) top = r.top - pad - gap - ch;
+  if (top < 16) top = Math.min(innerHeight - ch - 16, Math.max(16, r.top + r.height / 2 - ch / 2));
+  let left = r.left + r.width / 2 - cw / 2;
+  if (top + ch > r.top - pad && top < r.bottom + pad) left = r.left - cw - gap - pad >= 16 ? r.left - cw - gap - pad : r.right + gap + pad;
+  card.style.left = Math.min(innerWidth - cw - 16, Math.max(16, left)) + 'px';
+  card.style.top = Math.min(innerHeight - ch - 16, Math.max(16, top)) + 'px';
+}
+addEventListener('resize', () => { if (tourStep >= 0) showTourStep(); });
+document.addEventListener('keydown', e => {
+  if (tourStep < 0) return;
+  if (e.key === 'Escape') { e.stopPropagation(); e.preventDefault(); endTour(); }
+  else if (e.key === 'ArrowRight' || e.key === 'Enter') { e.stopPropagation(); e.preventDefault(); tourStep++; showTourStep(); }
+  else if (e.key === 'ArrowLeft' && tourStep > 0) { e.stopPropagation(); e.preventDefault(); tourStep--; showTourStep(); }
+  else { e.stopPropagation(); e.preventDefault(); }
+}, true);
+$('tour').addEventListener('click', e => e.stopPropagation());
+$('tour').addEventListener('dblclick', e => e.stopPropagation());
 $('setup').addEventListener('click', e => e.stopPropagation());
 
 // weather location
@@ -6350,6 +6488,7 @@ async function cloudStart(user) {
     sync().catch(() => {});
   });
 }
+function setupAcctRefresh() { if (document.body.classList.contains('setup') && setupStep === 5) renderSetup(); }
 function setAcctInfo(t) { if (cloud.user) setText($('acctInfo'), `${cloud.user.email} · ${t}`); }
 function renderAcct() {
   $('acctRow').style.display = FIREBASE_CONFIG ? '' : 'none';
@@ -6359,6 +6498,7 @@ function renderAcct() {
   setText($('acctBtn'), cloud.user ? 'Sign out' : 'Sign in');
   if (!cloud.user) setText($('acctInfo'), '');
   else setAcctInfo('Synced');
+  setupAcctRefresh();
 }
 let acctMode = 'in';
 function openAcct() {
