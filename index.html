@@ -5396,48 +5396,122 @@ if (navigator.getBattery) {
 }
 
 // accounts and sync (Firebase)
-const cloud = { ready: false, user: null, fb: null, timer: null, applying: false, lastSeen: 0, unsub: null, explicit: false,
-  lastJson: (() => { try { return localStorage.getItem('clockSettings'); } catch (e) { return null; } })(),
+// Each computer remembers the last copy it agreed on with your account (the "base"). When this computer
+// and another one both changed things, the changes are merged item by item, so one computer's older
+// copy can never wipe out what you added on another.
+const cloud = { ready: false, user: null, fb: null, timer: null, applying: false, unsub: null, explicit: false, deferred: false, retry: null,
   device: (() => { try { let d = localStorage.getItem('clockDevice'); if (!d) { d = Math.random().toString(36).slice(2); localStorage.setItem('clockDevice', d); } return d; } catch (e) { return 'x'; } })() };
-function localUpdated() { try { return Number(localStorage.getItem('clockUpdated') || 0); } catch (e) { return 0; } }
-function cloudSave(json) {
-  if (cloud.applying) return;
-  if (json === cloud.lastJson) return;
-  cloud.lastJson = json;
-  try { localStorage.setItem('clockUpdated', String(Date.now())); } catch (e) {}
-  if (!cloud.user) return;
-  clearTimeout(cloud.timer);
-  cloud.timer = setTimeout(async () => {
-    try {
-      const { doc, setDoc } = cloud.fb;
-      const updated = Date.now();
-      cloud.lastSeen = updated;
-      await setDoc(doc(cloud.db, 'users', cloud.user.uid), { settings: json, updated, device: cloud.device });
-      setAcctInfo('Synced');
-    } catch (e) { setAcctInfo('Not synced'); }
-  }, 1500);
+const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+const lsSet = (k, v) => { try { if (v == null) localStorage.removeItem(k); else localStorage.setItem(k, v); } catch (e) {} };
+const baseKey = () => cloud.user ? 'clockBase:' + cloud.user.uid : null;
+const getBase = () => baseKey() ? lsGet(baseKey()) : null;
+const setBase = json => { if (baseKey()) lsSet(baseKey(), json); };
+
+function stable(v) {
+  if (Array.isArray(v)) return '[' + v.map(stable).join(',') + ']';
+  if (v && typeof v === 'object') return '{' + Object.keys(v).filter(k => v[k] !== undefined).sort().map(k => JSON.stringify(k) + ':' + stable(v[k])).join(',') + '}';
+  return v === undefined ? 'null' : JSON.stringify(v);
 }
-function applyRemote(json, updated) {
+const same = (a, b) => stable(a) === stable(b);
+const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
+const idArr = v => Array.isArray(v) && v.every(x => isObj(x) && x.id != null);
+// three-way merge: b = last agreed copy, l = this computer, r = account. preferR: who wins a true conflict
+function merge3(b, l, r, preferR) {
+  if (same(l, r) || same(r, b)) return l;
+  if (same(l, b)) return r;
+  if (isObj(l) && isObj(r)) {
+    const B = isObj(b) ? b : {}, out = {};
+    for (const k of new Set([...Object.keys(r), ...Object.keys(l)])) {
+      const v = merge3(B[k], l[k], r[k], preferR);
+      if (v !== undefined) out[k] = v;
+    }
+    return out;
+  }
+  if (idArr(l) && idArr(r) && (l.length || r.length)) {
+    const map = a => new Map((idArr(a) ? a : []).map(x => [String(x.id), x]));
+    const bm = map(b), lm = map(l), rm = map(r);
+    const order = r.map(x => String(x.id));
+    l.forEach((x, i) => {
+      const id = String(x.id);
+      if (rm.has(id)) return;
+      const at = i ? order.indexOf(String(l[i - 1].id)) : -1;
+      order.splice(at + 1, 0, id);
+    });
+    const out = [];
+    for (const id of order) { const v = merge3(bm.get(id), lm.get(id), rm.get(id), preferR); if (v !== undefined) out.push(v); }
+    return out;
+  }
+  return preferR ? r : l;
+}
+const mergeJSON = (b, l, r, preferR) => JSON.stringify(merge3(b == null ? undefined : JSON.parse(b), JSON.parse(l), JSON.parse(r), preferR));
+
+function applyJSON(json) {
   cloud.applying = true;
   try {
-    const obj = JSON.parse(json);
-    settings = Object.assign(clone(DEFAULTS), obj);
+    settings = Object.assign(clone(DEFAULTS), JSON.parse(json));
     delete settings.layout;
     fixSettings();
     settings.setupDone = true;
     save(); applySettings(); buildBoard(); renderWidgetList(); renderLayoutControls();
     if (settings.loc) { lat = settings.loc.lat; lon = settings.loc.lon; }
     loadWeather();
-    try { localStorage.setItem('clockUpdated', String(updated)); } catch (e) {}
-    cloud.lastSeen = updated;
   } catch (e) {}
-  cloud.lastJson = settingsJSON();
   cloud.applying = false;
 }
 const busy = () => document.body.classList.contains('layout-edit') || document.body.classList.contains('editing') ||
   (document.activeElement && document.activeElement.closest && document.activeElement.closest('input, textarea, [contenteditable="true"]'));
-let pendingRemote = null;
-setInterval(() => { if (pendingRemote && !busy()) { const p = pendingRemote; pendingRemote = null; applyRemote(p.settings, p.updated); } }, 3000);
+
+// one sync at a time; returns 'pulled' | 'pushed' | 'merged' | 'same' | 'later'
+let syncQ = Promise.resolve();
+function sync(force) { const p = syncQ.then(() => syncOnce(force)); syncQ = p.catch(() => {}); return p; }
+async function syncOnce(force) {
+  if (!cloud.user) return 'same';
+  clearTimeout(cloud.timer); clearTimeout(cloud.retry);
+  const { doc, runTransaction } = cloud.fb;
+  const ref = doc(cloud.db, 'users', cloud.user.uid);
+  const base = getBase(), local = settingsJSON();
+  let result = 'same', target = local;
+  try {
+    await runTransaction(cloud.db, async tx => {
+      const snap = await tx.get(ref);
+      const remote = snap.exists() && snap.data().settings || null;
+      result = 'same'; target = local;
+      const write = json => tx.set(ref, { settings: json, updated: Date.now(), device: cloud.device });
+      if (!remote) { write(local); result = 'pushed'; return; }
+      if (remote === local) return;
+      const localChanged = base == null || local !== base, remoteChanged = base == null || remote !== base;
+      if (!localChanged) { target = remote; result = 'pulled'; return; }
+      if (!remoteChanged) { write(local); result = 'pushed'; return; }
+      target = mergeJSON(base, local, remote, base == null);
+      if (target !== remote) write(target);
+      result = target === remote ? 'pulled' : 'merged';
+    });
+  } catch (e) {
+    setAcctInfo('Not synced');
+    cloud.retry = setTimeout(() => sync(), 30000);
+    throw e;
+  }
+  const inCloud = target, cur = settingsJSON();
+  const want = cur === local ? inCloud : mergeJSON(local, cur, inCloud, false); // you changed something while it synced
+  if (want !== cur) {
+    if (busy() && !force) { cloud.deferred = true; setAcctInfo('Synced'); return 'later'; }
+    applyJSON(want);
+  }
+  setBase(inCloud);
+  if (settingsJSON() !== inCloud) cloud.timer = setTimeout(() => sync().catch(() => {}), 1500);
+  setAcctInfo('Synced');
+  return result;
+}
+setInterval(() => { if (cloud.deferred && cloud.user && !busy()) { cloud.deferred = false; sync().catch(() => {}); } }, 3000);
+addEventListener('online', () => { if (cloud.user) sync().catch(() => {}); });
+
+function cloudSave(json) {
+  if (cloud.applying) return;
+  try { localStorage.setItem('clockUpdated', String(Date.now())); } catch (e) {}
+  if (!cloud.user || json === getBase()) return;
+  clearTimeout(cloud.timer);
+  cloud.timer = setTimeout(() => sync().catch(() => {}), 1500);
+}
 
 async function cloudStart(user) {
   cloud.user = user;
@@ -5446,22 +5520,25 @@ async function cloudStart(user) {
   if (!user) return;
   const { doc, getDoc, onSnapshot } = cloud.fb;
   const ref = doc(cloud.db, 'users', user.uid);
+  const explicit = cloud.explicit;
+  cloud.explicit = false;
   try {
-    const snap = await getDoc(ref);
-    const remote = snap.exists() ? snap.data() : null;
-    const explicit = cloud.explicit;
-    cloud.explicit = false;
-    let useRemote = remote && remote.settings && (remote.updated > localUpdated() || !hadSaved);
-    if (remote && remote.settings && explicit && hadSaved && remote.settings !== settingsJSON())
-      useRemote = confirm('Load the clock saved in your account?\n\nOK: use your account\u2019s clock on this computer.\nCancel: replace your account\u2019s clock with this computer\u2019s.');
-    if (useRemote) applyRemote(remote.settings, remote.updated);
-    else { cloud.lastJson = null; cloudSave(settingsJSON()); }
-    setAcctInfo('Synced');
+    if (!hadSaved && getBase() == null) setBase(settingsJSON()); // brand-new computer: just take your account's clock
+    else if (explicit && hadSaved) {
+      const snap = await getDoc(ref);
+      const remote = snap.exists() && snap.data().settings;
+      if (remote && remote !== settingsJSON()) {
+        const useRemote = confirm('Load the clock saved in your account?\n\nOK: use your account’s clock on this computer.\nCancel: replace your account’s clock with this computer’s.');
+        if (useRemote) { applyJSON(remote); setBase(remote); }
+        else setBase(remote);
+      }
+    }
+    await sync();
   } catch (e) { setAcctInfo('Not synced'); }
   cloud.unsub = onSnapshot(ref, snap => {
     const r = snap.data();
-    if (!r || !r.settings || r.device === cloud.device || r.updated <= cloud.lastSeen) return;
-    if (busy()) pendingRemote = r; else applyRemote(r.settings, r.updated);
+    if (!r || !r.settings || r.settings === getBase() || r.settings === settingsJSON()) return;
+    sync().catch(() => {});
   });
 }
 function setAcctInfo(t) { if (cloud.user) setText($('acctInfo'), `${cloud.user.email} · ${t}`); }
@@ -5519,7 +5596,7 @@ $('acctForgot').onclick = () => acctDo('reset');
 $('acctCancel').onclick = closeAcct;
 $('acctPass').addEventListener('keydown', e => { if (e.key === 'Enter') acctDo('in'); });
 $('acct').addEventListener('click', e => e.stopPropagation());
-// sync now: pull the newest clock from your account (or push this one if it is newer)
+// sync now: get changes from your other computers and send this one's
 async function syncNow() {
   if (!FIREBASE_CONFIG || !cloud.ready) { toast(location.protocol === 'file:' ? 'Sync works on the website version' : 'Still loading, try again in a sec', 2); return; }
   if (!cloud.user) { toast('Sign in to sync', 1.5); openAcct(); return; }
@@ -5528,28 +5605,11 @@ async function syncNow() {
   btn.classList.add('spin');
   const t0 = Date.now();
   try {
-    const { doc, getDoc, setDoc } = cloud.fb;
-    const ref = doc(cloud.db, 'users', cloud.user.uid);
-    const snap = await getDoc(ref);
-    const r = snap.exists() ? snap.data() : null;
-    const mine = settingsJSON();
-    let msg;
-    if (r && r.settings && r.settings !== mine && r.updated > localUpdated()) {
-      clearTimeout(cloud.timer); pendingRemote = null;
-      applyRemote(r.settings, r.updated);
-      msg = 'Synced: got your latest changes';
-    } else if (!r || !r.settings || r.settings !== mine) {
-      clearTimeout(cloud.timer);
-      const updated = Date.now();
-      cloud.lastSeen = updated; cloud.lastJson = mine;
-      await setDoc(ref, { settings: mine, updated, device: cloud.device });
-      try { localStorage.setItem('clockUpdated', String(updated)); } catch (e) {}
-      msg = 'Synced: sent this computer\u2019s changes';
-    } else msg = 'Already up to date';
-    setAcctInfo('Synced');
-    await new Promise(res => setTimeout(res, Math.max(0, 500 - (Date.now() - t0))));
-    toast(msg, 2);
-  } catch (e) { setAcctInfo('Not synced'); toast('Couldn\u2019t sync. Check your internet.', 2.5); }
+    const res = await sync(true);
+    await new Promise(r => setTimeout(r, Math.max(0, 500 - (Date.now() - t0))));
+    toast({ pulled: 'Synced: got your latest changes', pushed: 'Synced: sent this computer’s changes',
+            merged: 'Synced: combined changes from your computers', same: 'Already up to date', later: 'Synced' }[res] || 'Synced', 2);
+  } catch (e) { toast('Couldn’t sync. Check your internet.', 2.5); }
   btn.classList.remove('spin');
 }
 $('syncBtn').onclick = e => { e.stopPropagation(); syncNow(); };
