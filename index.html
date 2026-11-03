@@ -2703,7 +2703,19 @@ const TYPES = {
       const btns = mk('span');
       const addBtn = mk('button', 'mini', '+ Add'), impBtn = mk('button', 'mini', 'Canvas');
       impBtn.title = 'Import assignments from Canvas';
-      btns.append(impBtn, addBtn);
+      ref.clearBtn = mk('button', 'mini', 'Clear done');
+      ref.clearBtn.title = 'Remove finished assignments';
+      ref.clearBtn.onclick = e => {
+        e.stopPropagation();
+        const gone = d.list.filter(a => a.done);
+        if (!gone.length) return;
+        // remember cleared Canvas assignments so a re-import doesn't bring them back
+        d.cleared = [...new Set([...(d.cleared || []), ...gone.filter(a => a.id.startsWith('c:')).map(a => a.id)])].slice(-500);
+        d.list = d.list.filter(a => !a.done);
+        save(); ref.redraw();
+        toast(`Cleared ${gone.length} finished assignment${gone.length === 1 ? '' : 's'}`, 1.5);
+      };
+      btns.append(ref.clearBtn, impBtn, addBtn);
       head.append(btns);
       ref.list = mk('div', 'list');
 
@@ -2787,6 +2799,7 @@ const TYPES = {
       const items = d.list.filter(a => !(hideDone && a.done) && !(end && a.due && dueDate(a.due) >= end))
         .sort((a, b) => (a.done - b.done) || (a.due || '9999').localeCompare(b.due || '9999'));
       ref.list.innerHTML = '';
+      ref.clearBtn.style.display = d.list.some(a => a.done) ? '' : 'none';
       if (!items.length) ref.list.append(mk('div', 'empty', d.list.length ? 'All caught up' : 'Nothing yet. Add some or import from Canvas'));
       for (const a of items) {
         const row = mk('div', 'hw row-h' + (a.done ? ' done' : ''));
@@ -3984,6 +3997,7 @@ function importIcs(d, text) {
     const url = e.URL ? e.URL.val : '';
     res.total++;
     const id = 'c:' + (uid || title + due);
+    if (d.cleared && d.cleared.includes(id)) continue;
     const old = d.list.find(a => a.id === id);
     if (old) { Object.assign(old, { t: title, cls, due, url }); res.updated++; }
     else { d.list.push({ id, t: title, cls, due, url, done: false }); res.added++; }
