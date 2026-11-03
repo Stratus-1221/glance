@@ -939,13 +939,16 @@ function setGrid() {
   const gl = $('gridlines');
   if (gl) gl.style.backgroundSize = `calc(100% / ${GRID_C}) calc(100% / ${GRID_R})`;
 }
-function setFine(on) {
-  if (!!settings.fine === on) return;
-  const f = on ? 2 : 0.5;
-  for (const lay of settings.layouts) for (const it of lay.items) {
+function rescaleLayout(lay, f) {
+  for (const it of lay.items) {
     it.c = Math.max(0, Math.round(it.c * f)); it.r = Math.max(0, Math.round(it.r * f));
     it.w = Math.max(1, Math.round(it.w * f)); it.h = Math.max(1, Math.round(it.h * f));
   }
+}
+function setFine(on) {
+  if (!!settings.fine === on) return;
+  const f = on ? 2 : 0.5;
+  for (const lay of settings.layouts) { rescaleLayout(lay, f); lay.g = on ? 2 : 1; }
   settings.fine = on;
   setGrid(); save(); buildBoard();
 }
@@ -1005,6 +1008,9 @@ function fixSettings() {
   if (!settings.data || typeof settings.data !== 'object') settings.data = {};
   for (const lay of settings.layouts) {
     if (!Array.isArray(lay.items)) lay.items = clone(DEFAULT_LAYOUT);
+    const g = settings.fine ? 2 : 1;
+    if (lay.g && lay.g !== g) rescaleLayout(lay, g / lay.g); // a layout synced from a computer on the other grid
+    lay.g = g;
     for (const d of DEFAULT_LAYOUT)
       if (!lay.items.some(it => it.id === d.id) && !TYPES[d.type].multi) lay.items.push({ ...scaleBox(clone(d), settings.fine ? 2 : 1), on: false });
     const bat = lay.items.find(x => x.id === 'battery');
@@ -1048,9 +1054,45 @@ function fixSettings() {
 let saveTimer, schedVer = 0;
 const DEFAULT_KEYS = { edit: 'e', day: 'd', clockOnly: 'c', layout: 'l', help: '?' };
 const settingsJSON = (space) => JSON.stringify(settings, (k, v) => k === 'layout' ? undefined : v, space);
+// edit times: when each setting / item / layout was last changed on this computer (sync uses them so the newest edit wins)
+const SEP = '\u0001';
+const isLayoutPath = p => p.startsWith('layouts' + SEP) && p.indexOf(SEP, 8) < 0;
+var applyingRemote = false;
+var editStamps = (() => { try { return JSON.parse(localStorage.getItem('clockStamps')) || {}; } catch (e) { return {}; } })();
+function editUnits(v, path = '', out = {}) {
+  const isO = x => !!x && typeof x === 'object' && !Array.isArray(x);
+  if (path && isLayoutPath(path)) { out[path] = JSON.stringify(v); return out; }
+  if (isO(v)) {
+    const ks = Object.keys(v).filter(k => v[k] !== undefined);
+    if (!ks.length && path) out[path] = '{}';
+    for (const k of ks) editUnits(v[k], path ? path + SEP + k : k, out);
+    return out;
+  }
+  if (Array.isArray(v) && v.length && v.every(x => isO(x) && x.id != null)) { for (const x of v) editUnits(x, path + SEP + x.id, out); return out; }
+  out[path] = JSON.stringify(v);
+  return out;
+}
+function saveStamps() {
+  const ks = Object.keys(editStamps);
+  if (ks.length > 3000) ks.sort((a, b) => editStamps[a] - editStamps[b]).slice(0, ks.length - 3000).forEach(k => delete editStamps[k]);
+  try { localStorage.setItem('clockStamps', JSON.stringify(editStamps)); } catch (e) {}
+}
+function stampEdits(prev, json) {
+  try {
+    const a = editUnits(JSON.parse(prev)), b = editUnits(JSON.parse(json)), now = Date.now();
+    for (const k in b) if (a[k] !== b[k]) editStamps[k] = now;
+    for (const k in a) if (!(k in b)) editStamps[k] = now;
+    saveStamps();
+  } catch (e) {}
+}
 function save() {
   schedVer++;
+  const g = settings.fine ? 2 : 1;
+  for (const lay of settings.layouts || []) if (!lay.g) lay.g = g;
   const json = settingsJSON();
+  let prev = null;
+  try { prev = localStorage.getItem('clockSettings'); } catch (e) {}
+  if (prev && prev !== json && !applyingRemote) stampEdits(prev, json);
   try { localStorage.setItem('clockSettings', json); } catch (e) {}
   trackUndo(json);
   if (typeof cloudSave === 'function') cloudSave(json);
@@ -5415,14 +5457,27 @@ function stable(v) {
 const same = (a, b) => stable(a) === stable(b);
 const isObj = v => !!v && typeof v === 'object' && !Array.isArray(v);
 const idArr = v => Array.isArray(v) && v.every(x => isObj(x) && x.id != null);
-// three-way merge: b = last agreed copy, l = this computer, r = account. preferR: who wins a true conflict
-function merge3(b, l, r, preferR) {
+// three-way merge: b = last agreed copy, l = this computer, r = account.
+// When both changed the same thing, the one edited most recently wins (ties: x.preferR decides).
+// Each layout is one piece, so widget positions from two computers never get mixed together.
+function editTime(st, path) {
+  let t = 0;
+  for (const k in st) if ((k === path || k.startsWith(path + SEP)) && st[k] > t) t = st[k];
+  return t;
+}
+function merge3(b, l, r, x = {}, path = '') {
   if (same(l, r) || same(r, b)) return l;
   if (same(l, b)) return r;
+  const conflict = () => {
+    const tl = editTime(x.sl || {}, path), tr = editTime(x.sr || {}, path);
+    if (tl !== tr) return tl > tr ? l : r;
+    return x.preferR ? r : l;
+  };
+  if (path && isLayoutPath(path)) return conflict();
   if (isObj(l) && isObj(r)) {
     const B = isObj(b) ? b : {}, out = {};
     for (const k of new Set([...Object.keys(r), ...Object.keys(l)])) {
-      const v = merge3(B[k], l[k], r[k], preferR);
+      const v = merge3(B[k], l[k], r[k], x, path ? path + SEP + k : k);
       if (v !== undefined) out[k] = v;
     }
     return out;
@@ -5438,15 +5493,16 @@ function merge3(b, l, r, preferR) {
       order.splice(at + 1, 0, id);
     });
     const out = [];
-    for (const id of order) { const v = merge3(bm.get(id), lm.get(id), rm.get(id), preferR); if (v !== undefined) out.push(v); }
+    for (const id of order) { const v = merge3(bm.get(id), lm.get(id), rm.get(id), x, path + SEP + id); if (v !== undefined) out.push(v); }
     return out;
   }
-  return preferR ? r : l;
+  return conflict();
 }
-const mergeJSON = (b, l, r, preferR) => JSON.stringify(merge3(b == null ? undefined : JSON.parse(b), JSON.parse(l), JSON.parse(r), preferR));
+const mergeJSON = (b, l, r, x) => JSON.stringify(merge3(b == null ? undefined : JSON.parse(b), JSON.parse(l), JSON.parse(r), x));
+function maxStamps(a, b) { const o = { ...a }; for (const k in b) if (!(o[k] >= b[k])) o[k] = b[k]; return o; }
 
 function applyJSON(json) {
-  cloud.applying = true;
+  cloud.applying = true; applyingRemote = true;
   try {
     settings = Object.assign(clone(DEFAULTS), JSON.parse(json));
     delete settings.layout;
@@ -5456,7 +5512,7 @@ function applyJSON(json) {
     if (settings.loc) { lat = settings.loc.lat; lon = settings.loc.lon; }
     loadWeather();
   } catch (e) {}
-  cloud.applying = false;
+  cloud.applying = false; applyingRemote = false;
 }
 const busy = () => document.body.classList.contains('layout-edit') || document.body.classList.contains('editing') ||
   (document.activeElement && document.activeElement.closest && document.activeElement.closest('input, textarea, [contenteditable="true"]'));
@@ -5470,19 +5526,21 @@ async function syncOnce(force) {
   const { doc, runTransaction } = cloud.fb;
   const ref = doc(cloud.db, 'users', cloud.user.uid);
   const base = getBase(), local = settingsJSON();
-  let result = 'same', target = local;
+  let result = 'same', target = local, rStamps = {};
   try {
     await runTransaction(cloud.db, async tx => {
       const snap = await tx.get(ref);
-      const remote = snap.exists() && snap.data().settings || null;
+      const data = snap.exists() ? snap.data() : {};
+      const remote = data.settings || null;
+      try { rStamps = JSON.parse(data.stamps || '{}'); } catch (e) { rStamps = {}; }
       result = 'same'; target = local;
-      const write = json => tx.set(ref, { settings: json, updated: Date.now(), device: cloud.device });
+      const write = json => tx.set(ref, { settings: json, stamps: JSON.stringify(maxStamps(editStamps, rStamps)), updated: Date.now(), device: cloud.device });
       if (!remote) { write(local); result = 'pushed'; return; }
       if (remote === local) return;
       const localChanged = base == null || local !== base, remoteChanged = base == null || remote !== base;
       if (!localChanged) { target = remote; result = 'pulled'; return; }
       if (!remoteChanged) { write(local); result = 'pushed'; return; }
-      target = mergeJSON(base, local, remote, base == null);
+      target = mergeJSON(base, local, remote, { preferR: base == null, sl: editStamps, sr: rStamps });
       if (target !== remote) write(target);
       result = target === remote ? 'pulled' : 'merged';
     });
@@ -5491,8 +5549,9 @@ async function syncOnce(force) {
     cloud.retry = setTimeout(() => sync(), 30000);
     throw e;
   }
+  editStamps = maxStamps(editStamps, rStamps); saveStamps();
   const inCloud = target, cur = settingsJSON();
-  const want = cur === local ? inCloud : mergeJSON(local, cur, inCloud, false); // you changed something while it synced
+  const want = cur === local ? inCloud : mergeJSON(local, cur, inCloud); // you changed something while it synced
   if (want !== cur) {
     if (busy() && !force) { cloud.deferred = true; setAcctInfo('Synced'); return 'later'; }
     applyJSON(want);
@@ -5636,7 +5695,7 @@ async function cloudInit() {
 
 // start
 fixSettings();
-save();
+applyingRemote = true; save(); applyingRemote = false; // tidying up old saves isn't an edit
 setGrid();
 applySettings();
 buildBoard();
