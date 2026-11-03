@@ -5722,7 +5722,11 @@ function showModal({ title, body = [], actions = [] }) {
   const f = box.querySelector('textarea, input');
   if (f) setTimeout(() => f.focus(), 30);
 }
-const closeModal = () => document.body.classList.remove('gmodal');
+var modalOnClose = null;
+function closeModal() {
+  document.body.classList.remove('gmodal');
+  if (modalOnClose) { const f = modalOnClose; modalOnClose = null; f(); }
+}
 $('gmodal').addEventListener('click', e => { if (e.target === $('gmodal')) closeModal(); e.stopPropagation(); });
 async function copyText(t) {
   try { await navigator.clipboard.writeText(t); toast('Copied', 1.2); return true; }
@@ -6470,14 +6474,17 @@ async function cloudStart(user) {
   const explicit = cloud.explicit;
   cloud.explicit = false;
   try {
-    if (!hadSaved && getBase() == null) setBase(settingsJSON()); // brand-new computer: just take your account's clock
-    else if (explicit && hadSaved) {
+    const touched = hadSaved || Object.keys(editStamps).some(k => !/^(setupDone|seenVersion)/.test(k));
+    if (!touched && getBase() == null) setBase(settingsJSON()); // brand-new computer: just take your account's clock
+    else if (explicit) {
       const snap = await getDoc(ref);
-      const remote = snap.exists() && snap.data().settings;
+      const data = snap.exists() ? snap.data() : {};
+      const remote = data.settings;
       if (remote && remote !== settingsJSON()) {
-        const useRemote = confirm('Load the clock saved in your account?\n\nOK: use your account’s clock on this computer.\nCancel: replace your account’s clock with this computer’s.');
-        if (useRemote) { applyJSON(remote); setBase(remote); }
-        else setBase(remote);
+        const pick = await askSignInChoice(data.updated, localUpdated());
+        if (pick === 'account') { applyJSON(remote); setBase(remote); }
+        else if (pick === 'computer') setBase(remote); // account looks unchanged, so this computer's copy replaces it
+        // 'both': keep the last agreed copy, so sync merges the two
       }
     }
     await sync();
@@ -6486,6 +6493,33 @@ async function cloudStart(user) {
     const r = snap.data();
     if (!r || !r.settings || r.settings === getBase() || r.settings === settingsJSON()) return;
     sync().catch(() => {});
+  });
+}
+function localUpdated() { return Number(lsGet('clockUpdated') || 0); }
+function askSignInChoice(remoteAt, localAt) {
+  const when = t => {
+    if (!t) return 'at an unknown time';
+    const d = new Date(t), today = ymd(d) === ymd(new Date());
+    return (today ? 'today' : d.toLocaleDateString([], { month: 'short', day: 'numeric' })) + ' at ' + clockStr(d.getHours(), d.getMinutes());
+  };
+  return new Promise(res => {
+    let done = false;
+    const finish = v => { if (done) return; done = true; modalOnClose = null; res(v); };
+    const info = mk('div', 'su-small');
+    info.textContent = `Your account was last changed ${when(remoteAt)}. This computer was last changed ${when(localAt)}.`;
+    showModal({ title: 'This computer and your account are different', body: [
+      'Which clock do you want to keep? This decides your layouts, widgets, homework, notes and settings.',
+      info], actions: [
+      { label: 'Combine both', fn: () => finish('both') },
+      { label: 'Use this computer\u2019s', fn: () => { if (!confirm('Replace everything in your account with this computer\u2019s clock? Your other computers will get this version too.')) return false; finish('computer'); } },
+      { label: 'Use my account\u2019s', primary: true, fn: () => finish('account') }] });
+    const list = mk('ul', 'su-list');
+    [['Use my account\u2019s', 'this computer switches to what\u2019s saved in your account. Good if you messed something up here.'],
+     ['Use this computer\u2019s', 'your account is replaced with what\u2019s on this computer.'],
+     ['Combine both', 'keeps the changes made in both places, including things you deleted. If the same thing was changed in both, the newer change wins.']]
+      .forEach(([b, t]) => { const li = mk('li'); li.innerHTML = `<b>${b}</b>: ${t}`; list.append(li); });
+    $('gmBox').insertBefore(list, info);
+    modalOnClose = () => finish('both');
   });
 }
 function setupAcctRefresh() { if (document.body.classList.contains('setup') && setupStep === 5) renderSetup(); }
