@@ -156,8 +156,8 @@
   .del:hover { color: #a55; }
 
   .it { display: flex; align-items: baseline; gap: 0.6em; padding: 0.15em 0; color: #aaa; }
-  .bx { width: 0.75em; height: 0.75em; border: 1px solid #444; border-radius: 3px; flex: none; cursor: pointer; position: relative; top: 0.08em; }
-  .it.done .bx { background: #444; }
+  .bx { width: 0.75em; height: 0.75em; border: 1px solid rgba(255,255,255,0.4); border-radius: 3px; flex: none; cursor: pointer; position: relative; top: 0.08em; }
+  .it.done .bx { background: rgba(255,255,255,0.4); }
   .it.done .tx { color: #444; text-decoration: line-through; }
   .tx { flex: 1; word-break: break-word; cursor: pointer; }
   .it[draggable=true] { cursor: grab; }
@@ -216,7 +216,7 @@
   .hw .tx { flex: 1; min-width: 0; }
   .hw .cl { color: #555; font-size: 0.8em; margin-left: 0.4em; }
   .hw.done .tx { color: #444; text-decoration: line-through; }
-  .hw.done .bx { background: #444; }
+  .hw.done .bx { background: rgba(255,255,255,0.4); }
   .hw .go { color: #444; text-decoration: none; visibility: hidden; flex: none; }
   .hw:hover .go { visibility: visible; }
   .hw .go:hover { color: #ccc; }
@@ -626,7 +626,10 @@
   /* metronome */
   .mbody { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.7em; min-height: 0; }
   .mbpm { display: flex; align-items: center; gap: 0.6em; }
-  .mbpm .n { font-size: 3.2em; font-weight: 200; color: var(--c2); font-variant-numeric: tabular-nums; min-width: 2em; text-align: center; line-height: 1; cursor: ns-resize; }
+  .mbpm .n { font-size: 3.2em; font-weight: 200; color: var(--c2); font-variant-numeric: tabular-nums; width: 3.1ch; text-align: center; line-height: 1; cursor: text;
+             background: none; border: 0; border-radius: 6px; font-family: inherit; padding: 0; outline: none; }
+  .mbpm .n:hover { background: rgba(255,255,255,0.04); }
+  .mbpm .n:focus { background: rgba(255,255,255,0.08); }
   .mbpm .mini { font-size: 1.6em; }
   .mterm { color: #666; font-size: 0.85em; letter-spacing: 0.08em; text-transform: uppercase; }
   .mdots { display: flex; gap: 0.5em; }
@@ -687,10 +690,10 @@
   .lkform.show { display: flex; }
   .lkform input { flex: 1 1 6em; min-width: 0; background: none; border: 0; border-bottom: 1px solid #222; color: #ccc; font: inherit; outline: none; padding: 0.2em 0; }
   /* flashcards */
-  .fc { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 0; cursor: pointer;
+  .fcard { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 0; cursor: pointer;
         font-size: 1.5em; color: var(--c2); padding: 0.3em; overflow: hidden; overflow-wrap: anywhere; }
-  .fc.back { color: #9fc3e6; }
-  .fc.empty { font-size: 1em; color: #444; cursor: default; }
+  .fcard.back { color: #9fc3e6; }
+  .fcard.empty { font-size: 1em; color: #444; cursor: default; }
   .fcbtns { display: flex; justify-content: center; gap: 1.6em; flex: none; margin-top: 0.4em; }
   .fcbtns .mini { font-size: 0.85em; letter-spacing: 0.08em; text-transform: uppercase; }
   .fcadd { display: none; flex-direction: column; gap: 0.4em; border-top: 1px solid #161616; padding-top: 0.5em; margin-top: 0.4em; }
@@ -710,7 +713,7 @@
   .verline:hover { color: #888; }
   body.text-bright .mterm, body.text-bright .tinfo, body.text-bright .tstr, body.text-bright .tnote sub, body.text-bright .lk, body.text-bright .fcadd .r { color: #c4c4c4; }
   body.text-bright .tstr span.on, body.text-bright .lk:hover { color: #fff; }
-  body.text-bright .fc.empty { color: #c4c4c4; }
+  body.text-bright .fcard.empty { color: #c4c4c4; }
   /* bright text: white and one level down */
   body.text-bright .ag .kd { color: #c4c4c4; }
   body.text-bright { --c1: #ffffff; --c2: #ffffff; --c3: #c4c4c4; --c4: #c4c4c4; --c5: #c4c4c4; }
@@ -1534,6 +1537,7 @@ function renderSky(cfg, W, H) {
   c.width = W; c.height = H;
   const g = c.getContext('2d');
   g.clearRect(0, 0, W, H);
+  fx.skyBot = null;
   if (cfg.sky === 'photo') {
     if (bgImg && bgImg.complete && bgImg.naturalWidth) {
       const sc = Math.max(W / bgImg.naturalWidth, H / bgImg.naturalHeight);
@@ -1551,6 +1555,7 @@ function renderSky(cfg, W, H) {
     const grad = g.createLinearGradient(0, 0, 0, H);
     grad.addColorStop(0, rgbStr(top)); grad.addColorStop(1, rgbStr(bot));
     g.fillStyle = grad; g.fillRect(0, 0, W, H);
+    fx.skyBot = bot;
 
     if (cfg.sunmoon) {
       let p, isSun;
@@ -1581,7 +1586,9 @@ function renderSky(cfg, W, H) {
     }
   }
   if (cfg.hills) {
-    const layers = [[0.82, 0.05, '#06080d', 0.7], [0.88, 0.04, '#030407', 1.3]];
+    const sb = fx.skyBot || [6, 8, 13];
+    const shade = k => rgbStr(mixRgb(sb, [3, 4, 7], k));
+    const layers = [[0.88, 0.035, shade(0.45), 0.7], [0.93, 0.025, shade(0.7), 1.3]];
     for (const [base, amp, color, freq] of layers) {
       g.fillStyle = color;
       g.beginPath(); g.moveTo(0, H);
@@ -1937,6 +1944,21 @@ function metroStop() { clearInterval(metro.timer); metro.timer = null; metro.on 
 const isPhone = () => matchMedia('(pointer: coarse)').matches;
 const canBuzz = () => 'vibrate' in navigator;
 function buzz(it, ms) { if (canBuzz() && opt(it, 'haptic', isPhone())) try { navigator.vibrate(ms); } catch (e) {} }
+function tempoInput() {
+  const n = mk('input', 'n');
+  n.type = 'text'; n.inputMode = 'numeric'; n.maxLength = 3; n.spellcheck = false;
+  n.title = 'Click to type a tempo, or scroll';
+  n.addEventListener('focus', () => n.select());
+  n.addEventListener('input', () => { n.value = n.value.replace(/\D/g, ''); });
+  n.addEventListener('keydown', e => {
+    e.stopPropagation();
+    if (e.key === 'Enter') n.blur();
+    if (e.key === 'Escape') { n.value = ''; n.blur(); }
+    if (e.key === 'ArrowUp' || e.key === 'ArrowDown') { e.preventDefault(); n.value = Number(n.value || 0) + (e.key === 'ArrowUp' ? 1 : -1) * (e.shiftKey ? 5 : 1); n.dispatchEvent(new Event('change')); n.select(); }
+  });
+  n.addEventListener('pointerdown', e => e.stopPropagation());
+  return n;
+}
 function metroPaint(b) { for (const r of refs) if (r.it.type === 'metro' && r.paintBeat) r.paintBeat(metro.on === r.it.id ? b : -1); }
 
 // polyrhythm engine: layer A plays `a` notes in the time layer B plays `b`; tempo = layer B's beats per minute
@@ -3491,8 +3513,7 @@ const TYPES = {
       const body = mk('div', 'mbody');
       const row = mk('div', 'mbpm');
       const minus = mk('button', 'mini', '−'), plus = mk('button', 'mini', '+');
-      ref.n = mk('span', 'n');
-      ref.n.title = 'Scroll to change, double-click to type';
+      ref.n = tempoInput();
       row.append(minus, ref.n, plus);
       ref.dots = mk('div', 'mdots');
       const sig = mk('div', 'tsig');
@@ -3523,11 +3544,11 @@ const TYPES = {
       });
       ref.inner.append(head, body);
       const setBpm = v => {
-        d.bpm = Math.max(30, Math.min(300, Math.round(v)));
+        d.bpm = Math.max(30, Math.min(500, Math.round(v)));
         paint(); saveSoon();
       };
       const paint = () => {
-        setText(ref.n, String(d.bpm));
+        if (document.activeElement !== ref.n) ref.n.value = d.bpm;
         setText(ref.term, tempoName(d.bpm));
         const bpb = Number(opt(ref.it, 'bpb', 4)), grp = metroGroup(ref.it), acc = opt(ref.it, 'accent', true);
         if (document.activeElement !== top) top.value = bpb;
@@ -3546,7 +3567,7 @@ const TYPES = {
         b.onpointerup = b.onpointerleave = release;
       });
       ref.n.addEventListener('wheel', e => { e.preventDefault(); setBpm(d.bpm + (e.deltaY < 0 ? 1 : -1) * (e.shiftKey ? 5 : 1)); }, { passive: false });
-      ref.n.ondblclick = () => { const v = prompt('Tempo (beats per minute)', d.bpm); if (v && !isNaN(v)) setBpm(Number(v)); };
+      ref.n.onchange = () => setBpm(Number(ref.n.value) || d.bpm);
       ref.play.onclick = e => { e.stopPropagation(); if (metro.on === ref.it.id) metroStop(); else metroStart(ref.it); paint(); };
       let taps = [];
       tap.onclick = e => {
@@ -3589,12 +3610,12 @@ const TYPES = {
       lanes.append(wrap);
       const row = mk('div', 'mbpm');
       const minus = mk('button', 'mini', '−'), plus = mk('button', 'mini', '+');
-      ref.n = mk('span', 'n'); ref.n.style.fontSize = '1.8em';
-      ref.n.title = 'Tempo of the second layer. Scroll to change, double-click to type';
+      ref.n = tempoInput(); ref.n.style.fontSize = '1.8em';
+      ref.n.title = 'Tempo of the second layer. Click to type, or scroll';
       row.append(minus, ref.n, plus);
       body.append(ratio, lanes, row);
       ref.inner.append(head, body);
-      const setBpm = v => { d.bpm = Math.max(20, Math.min(240, Math.round(v))); ref.redraw(); saveSoon(); };
+      const setBpm = v => { d.bpm = Math.max(20, Math.min(500, Math.round(v))); ref.redraw(); saveSoon(); };
       let hold = null;
       const release = () => { clearTimeout(hold); clearInterval(hold); };
       [[minus, -1], [plus, 1]].forEach(([b, dv]) => {
@@ -3602,7 +3623,7 @@ const TYPES = {
         b.onpointerup = b.onpointerleave = release;
       });
       ref.n.addEventListener('wheel', e => { e.preventDefault(); setBpm(d.bpm + (e.deltaY < 0 ? 1 : -1)); }, { passive: false });
-      ref.n.ondblclick = () => { const v = prompt('Tempo (beats per minute of the second layer)', d.bpm); if (v && !isNaN(v)) setBpm(Number(v)); };
+      ref.n.onchange = () => setBpm(Number(ref.n.value) || d.bpm);
       const fix = () => {
         const clampN = (x, k, def) => { const n = Math.round(Number(x.value)); const v = n >= 1 && n <= 16 ? n : Number(opt(ref.it, k, def)); setOpt(ref.it, k, v); x.value = v; };
         clampN(ia, 'a', 3); clampN(ib, 'b', 2);
@@ -3618,7 +3639,7 @@ const TYPES = {
         const A = Number(opt(ref.it, 'a', 3)), B = Number(opt(ref.it, 'b', 2));
         if (document.activeElement !== ia) ia.value = A;
         if (document.activeElement !== ib) ib.value = B;
-        setText(ref.n, String(d.bpm || 60));
+        if (document.activeElement !== ref.n) ref.n.value = d.bpm || 60;
         setText(ref.play, poly.on === ref.it.id ? 'Stop' : 'Start');
         for (const [k, n] of [['a', A], ['b', B]]) {
           const lane = ref.lanes[k];
@@ -3745,7 +3766,7 @@ const TYPES = {
       const addBtn = mk('button', 'mini', '+ Add');
       right.append(ref.count, document.createTextNode(' '), addBtn);
       head.append(right);
-      ref.card = mk('div', 'fc');
+      ref.card = mk('div', 'fcard');
       const btns = mk('div', 'fcbtns');
       const again = mk('button', 'mini', 'Again'), got = mk('button', 'mini', 'Got it');
       btns.append(again, got);
@@ -3803,7 +3824,7 @@ const TYPES = {
         const pool = left();
         if (pool.length && !pool.some(c => c.id === d.cur)) pick();
         const c = d.cards.find(x => x.id === d.cur);
-        ref.card.className = 'fc';
+        ref.card.className = 'fcard';
         btns.style.visibility = c ? '' : 'hidden';
         if (!d.cards.length) { ref.card.classList.add('empty'); setText(ref.card, 'No cards yet. Click + Add'); setText(ref.count, ''); return; }
         setText(ref.count, pool.length ? `${pool.length} left` : '');
