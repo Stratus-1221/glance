@@ -489,7 +489,12 @@
   .row { display: flex; align-items: center; justify-content: space-between; gap: 8px 16px; flex-wrap: wrap; }
   .row > :last-child { margin-left: auto; }
   #panel > *, .tab > * { flex-shrink: 0; }
-  #tabs { position: sticky; top: -14px; z-index: 2; box-shadow: 0 -14px 0 6px #0b0b0b, 0 8px 10px 4px #0b0b0b; background: #0b0b0b; }
+  #tabbar { position: sticky; top: -14px; z-index: 2; box-shadow: 0 -14px 0 6px #0b0b0b, 0 8px 10px 4px #0b0b0b; background: #0b0b0b; display: flex; gap: 6px; }
+  #tabbar #tabs { flex: 1; }
+  #syncBtn { flex: none; padding: 0 9px; display: flex; align-items: center; }
+  #syncBtn svg { width: 15px; height: 15px; fill: none; stroke: currentColor; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
+  #syncBtn.spin svg { animation: syncspin 0.8s linear infinite; }
+  @keyframes syncspin { to { transform: rotate(360deg); } }
   #tabs button { padding: 7px 11px; }
   body.sky-full { --c2: #e6e6e6; --c3: #d6d6d6; --c4: #c4c4c4; --c5: #a9a9a9; --track: rgba(255,255,255,0.18); }
   body.sky-full .card .wi { border-color: rgba(255,255,255,0.06); }
@@ -748,7 +753,7 @@
 </button>
 
 <div id="panel">
-  <div class="seg" id="tabs"><button data-t="general" class="on">Settings</button><button data-t="widgets">Widgets</button><button data-t="bg">Background</button></div>
+  <div id="tabbar"><div class="seg" id="tabs"><button data-t="general" class="on">Settings</button><button data-t="widgets">Widgets</button><button data-t="bg">Background</button></div><button class="btn" id="syncBtn" title="Sync now: get changes from your other computers"><svg viewBox="0 0 24 24"><path d="M20 12a8 8 0 0 1-14.3 4.9M4 12a8 8 0 0 1 14.3-4.9"/><path d="M18.5 3v4.3h-4.3M5.5 21v-4.3h4.3"/></svg></button></div>
 
   <div class="tab on" data-tab="general">
     <div class="row" id="acctRow" style="display:none"><span>Account</span>
@@ -5160,6 +5165,7 @@ function cmdCommands() {
   add('Keyboard shortcuts', 'Help', () => openHelp());
   add('Run setup', 'Help', () => openSetup());
   if (cloud.ready) add(cloud.user ? 'Sign out' : 'Sign in', 'Account', () => cloud.user ? $('acctBtn').click() : openAcct());
+  if (cloud.ready && cloud.user) add('Sync now', 'Account', () => syncNow());
   return C;
 }
 function openCmd() {
@@ -5513,6 +5519,41 @@ $('acctForgot').onclick = () => acctDo('reset');
 $('acctCancel').onclick = closeAcct;
 $('acctPass').addEventListener('keydown', e => { if (e.key === 'Enter') acctDo('in'); });
 $('acct').addEventListener('click', e => e.stopPropagation());
+// sync now: pull the newest clock from your account (or push this one if it is newer)
+async function syncNow() {
+  if (!FIREBASE_CONFIG || !cloud.ready) { toast(location.protocol === 'file:' ? 'Sync works on the website version' : 'Still loading, try again in a sec', 2); return; }
+  if (!cloud.user) { toast('Sign in to sync', 1.5); openAcct(); return; }
+  const btn = $('syncBtn');
+  if (btn.classList.contains('spin')) return;
+  btn.classList.add('spin');
+  const t0 = Date.now();
+  try {
+    const { doc, getDoc, setDoc } = cloud.fb;
+    const ref = doc(cloud.db, 'users', cloud.user.uid);
+    const snap = await getDoc(ref);
+    const r = snap.exists() ? snap.data() : null;
+    const mine = settingsJSON();
+    let msg;
+    if (r && r.settings && r.settings !== mine && r.updated > localUpdated()) {
+      clearTimeout(cloud.timer); pendingRemote = null;
+      applyRemote(r.settings, r.updated);
+      msg = 'Synced: got your latest changes';
+    } else if (!r || !r.settings || r.settings !== mine) {
+      clearTimeout(cloud.timer);
+      const updated = Date.now();
+      cloud.lastSeen = updated; cloud.lastJson = mine;
+      await setDoc(ref, { settings: mine, updated, device: cloud.device });
+      try { localStorage.setItem('clockUpdated', String(updated)); } catch (e) {}
+      msg = 'Synced: sent this computer\u2019s changes';
+    } else msg = 'Already up to date';
+    setAcctInfo('Synced');
+    await new Promise(res => setTimeout(res, Math.max(0, 500 - (Date.now() - t0))));
+    toast(msg, 2);
+  } catch (e) { setAcctInfo('Not synced'); toast('Couldn\u2019t sync. Check your internet.', 2.5); }
+  btn.classList.remove('spin');
+}
+$('syncBtn').onclick = e => { e.stopPropagation(); syncNow(); };
+
 $('acctBtn').onclick = async e => {
   e.stopPropagation();
   if (cloud.user) { if (confirm('Sign out? Your clock stays on this computer.')) { await cloud.fb.signOut(cloud.auth); toast('Signed out', 1.5); } }
