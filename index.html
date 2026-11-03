@@ -623,6 +623,71 @@
   #editor .btn.small { padding: 3px 9px; margin-top: 6px; }
   #editor .ed-off input[type=text] { width: 170px; }
   .ed-off { display: flex; gap: 6px; align-items: center; margin: 4px 0; flex-wrap: wrap; }
+  /* metronome */
+  .mbody { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.7em; min-height: 0; }
+  .mbpm { display: flex; align-items: center; gap: 0.6em; }
+  .mbpm .n { font-size: 3.2em; font-weight: 200; color: var(--c2); font-variant-numeric: tabular-nums; min-width: 2em; text-align: center; line-height: 1; cursor: ns-resize; }
+  .mbpm .mini { font-size: 1.6em; }
+  .mterm { color: #666; font-size: 0.85em; letter-spacing: 0.08em; text-transform: uppercase; }
+  .mdots { display: flex; gap: 0.5em; }
+  .mdots i { width: 0.6em; height: 0.6em; border-radius: 50%; border: 1px solid #444; transition: background 0.05s; }
+  .mdots i.acc { border-color: #888; }
+  .mdots i.on { background: #ddd; border-color: #ddd; }
+  .mctl { display: flex; gap: 1.4em; }
+  .mctl .mini { font-size: 1em; letter-spacing: 0.08em; text-transform: uppercase; }
+  .t-metro.beat .wi { border-color: #555; }
+  /* tuner */
+  .tbody { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 0.5em; min-height: 0; }
+  .tnote { font-size: 3.4em; font-weight: 200; color: var(--c2); line-height: 1; min-height: 1em; }
+  .tnote sub { font-size: 0.35em; color: #777; vertical-align: baseline; margin-left: 0.1em; }
+  .tmeter { position: relative; width: 80%; height: 0.5em; border-bottom: 1px solid #333; }
+  .tmeter::before { content: ''; position: absolute; left: 50%; bottom: -0.25em; width: 1px; height: 1em; background: #666; }
+  .tmeter b { position: absolute; bottom: -0.3em; width: 0.5em; height: 0.5em; margin-left: -0.25em; border-radius: 50%; background: #ccc; left: 50%; transition: left 0.12s; }
+  .tmeter.ok b, .tnote.ok { color: #8fcf9c; }
+  .tmeter.ok b { background: #8fcf9c; }
+  .tinfo { color: #777; font-size: 0.9em; font-variant-numeric: tabular-nums; min-height: 1.2em; }
+  .tstr { display: flex; gap: 0.9em; color: #555; letter-spacing: 0.05em; }
+  .tstr span.on { color: #ddd; }
+  /* quick links */
+  .lks { flex: 1; overflow-y: auto; scrollbar-width: none; min-height: 0; display: flex; flex-direction: column; gap: 0.15em; }
+  .lks.chips { flex-direction: row; flex-wrap: wrap; align-content: flex-start; gap: 0.45em; }
+  .lk { display: flex; align-items: center; gap: 0.6em; color: #aaa; text-decoration: none; padding: 0.2em 0; }
+  .lks.chips .lk { border: 1px solid #222; border-radius: 6px; padding: 0.3em 0.65em; }
+  .lk:hover { color: #fff; }
+  .lk img { width: 1em; height: 1em; border-radius: 3px; flex: none; }
+  .lk .tx { flex: 1; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .lks.chips .lk .tx { flex: none; }
+  .lk .del, .lk .ed { flex: none; }
+  .lk .ed { color: #333; cursor: pointer; visibility: hidden; }
+  .lk:hover .ed { visibility: visible; }
+  .lkform { display: none; gap: 0.4em; flex-wrap: wrap; border-top: 1px solid #161616; padding-top: 0.5em; margin-top: 0.4em; }
+  .lkform.show { display: flex; }
+  .lkform input { flex: 1 1 6em; min-width: 0; background: none; border: 0; border-bottom: 1px solid #222; color: #ccc; font: inherit; outline: none; padding: 0.2em 0; }
+  /* flashcards */
+  .fc { flex: 1; display: flex; align-items: center; justify-content: center; text-align: center; min-height: 0; cursor: pointer;
+        font-size: 1.5em; color: var(--c2); padding: 0.3em; overflow: hidden; overflow-wrap: anywhere; }
+  .fc.back { color: #9fc3e6; }
+  .fc.empty { font-size: 1em; color: #444; cursor: default; }
+  .fcbtns { display: flex; justify-content: center; gap: 1.6em; flex: none; margin-top: 0.4em; }
+  .fcbtns .mini { font-size: 0.85em; letter-spacing: 0.08em; text-transform: uppercase; }
+  .fcadd { display: none; flex-direction: column; gap: 0.4em; border-top: 1px solid #161616; padding-top: 0.5em; margin-top: 0.4em; }
+  .fcadd.show { display: flex; }
+  .fcadd textarea { background: none; border: 1px solid #1c1c1c; border-radius: 6px; color: #ccc; font: inherit; padding: 0.4em; resize: none; height: 4.5em; outline: none; }
+  .fcadd .r { display: flex; justify-content: space-between; align-items: center; color: #555; font-size: 0.85em; }
+  /* weather alert banner */
+  #wxbanner { position: fixed; top: 10px; left: 50%; transform: translateX(-50%); z-index: 12; display: none; gap: 0.8em; align-items: center;
+              max-width: calc(100vw - 40px); padding: 6px 12px; border: 1px solid #3a2c14; border-radius: 8px; background: rgba(20, 14, 4, 0.85);
+              color: #e8c27a; font: 13px -apple-system, "Segoe UI", Roboto, sans-serif; letter-spacing: 0.03em; cursor: pointer; }
+  #wxbanner.show { display: flex; }
+  body.layout-edit #wxbanner { display: none; }
+  #wxbanner .x { color: #8a7040; padding: 0 2px; }
+  #wxbanner .x:hover { color: #fff; }
+  .wxd { white-space: pre-wrap; max-height: 50vh; overflow-y: auto; color: #999; font-size: 13px; line-height: 1.5; }
+  .verline { color: #444; font-size: 12px; cursor: pointer; }
+  .verline:hover { color: #888; }
+  body.text-bright .mterm, body.text-bright .tinfo, body.text-bright .tstr, body.text-bright .tnote sub, body.text-bright .lk, body.text-bright .fcadd .r { color: #c4c4c4; }
+  body.text-bright .tstr span.on, body.text-bright .lk:hover { color: #fff; }
+  body.text-bright .fc.empty { color: #c4c4c4; }
   /* bright text: white and one level down */
   body.text-bright .ag .kd { color: #c4c4c4; }
   body.text-bright { --c1: #ffffff; --c2: #ffffff; --c3: #c4c4c4; --c4: #c4c4c4; --c5: #c4c4c4; }
@@ -763,6 +828,8 @@
     <div class="row"><span>Font</span><select id="fontSel"></select></div>
     <div class="row"><span>Clock only <span class="hint" data-kh="clockOnly">(C)</span></span>
       <div class="seg" data-key="clockOnly"><button data-v="false">Off</button><button data-v="true">On</button></div></div>
+    <div class="row"><span>Weather alert banner</span>
+      <div class="seg" data-key="alertBanner"><button data-v="all">All</button><button data-v="warn">Warnings</button><button data-v="off">Off</button></div></div>
     <div class="row"><span>Break reminder</span>
       <div class="seg" data-key="breakMins"><button data-v="0">Off</button><button data-v="30">30m</button><button data-v="45">45m</button><button data-v="60">1h</button><button data-v="90">1.5h</button></div></div>
     <div class="row"><span>Break reminder in class</span>
@@ -780,6 +847,7 @@
       <span class="btns"><button class="btn" id="setupBtn">Setup</button><button class="btn" id="newsBtn">What’s new</button><button class="btn" id="fbBtn">Feedback</button><button class="btn" id="helpBtn">Shortcuts <span class="hint" data-kh="help">(?)</span></button></span></div>
     <input type="file" id="fileIn" accept=".json,application/json" hidden>
     <div class="sub">Widget settings live in Edit layout. Press E, then click the gear on any widget.</div>
+    <div class="verline" id="verLine" title="What’s new"></div>
   </div>
 
   <div class="tab" data-tab="bg" id="bgTab"></div>
@@ -794,7 +862,7 @@
       <option value="">Pick one…</option><option value="minimal">Minimal</option><option value="student">Student</option>
       <option value="focus">Focus</option><option value="home">Home</option><option value="classroom">Classroom</option>
       <option value="bedside">Bedside</option><option value="planner">Planner</option><option value="weather">Weather</option>
-      <option value="packed">Packed</option></select></div>
+      <option value="packed">Packed</option><option value="music">Music</option></select></div>
     <div class="row"><span>Grid</span>
       <div class="seg" id="gridSeg"><button data-v="false">Normal</button><button data-v="true">Fine</button></div></div>
     <div class="row"><span>Lock layout</span>
@@ -805,7 +873,7 @@
     <div class="ed-sub" style="margin:2px 0 -4px">Widgets in this layout</div>
     <div id="wlist"></div>
     <div class="row"><span class="sub">Add another</span>
-      <span class="btns"><button class="btn" id="addNote">+ Note</button><button class="btn" id="addCheck">+ Checklist</button><button class="btn" id="addDaily">+ Daily</button></span></div>
+      <span class="btns"><button class="btn" id="addNote">+ Note</button><button class="btn" id="addCheck">+ Checklist</button><button class="btn" id="addDaily">+ Daily</button><button class="btn" id="addFlash">+ Flashcards</button></span></div>
     <div class="row"><button class="btn primary" id="editLayout">Edit layout <span class="hint" data-kh="edit">(E)</span></button><button class="btn" id="resetLayout">Reset layout</button></div>
   </div>
 
@@ -822,6 +890,7 @@
 </div>
 
 <div id="toast"></div>
+<div id="wxbanner" role="status"><span class="t"></span><span class="x" title="Hide this alert">×</span></div>
 <div id="alertBox"><div class="al-box"><div class="al-t" id="alTitle"></div><div class="al-s" id="alSub"></div>
   <div class="btns"><button class="btn" id="alSnooze">Snooze 5 min</button><button class="btn primary" id="alOk">Dismiss</button></div></div></div>
 
@@ -983,10 +1052,14 @@ const DEFAULT_LAYOUT = [
   { id: 'daily-1',     type: 'daily',     c: 0,  r: 0, w: 3, h: 3, on: false },
   { id: 'message',     type: 'message',   c: 2,  r: 6, w: 8, h: 1, on: false },
   { id: 'history',     type: 'history',   c: 2,  r: 7, w: 8, h: 1, on: false },
+  { id: 'metro',       type: 'metro',     c: 3,  r: 3, w: 3, h: 4, on: false },
+  { id: 'tuner',       type: 'tuner',     c: 6,  r: 3, w: 3, h: 4, on: false },
+  { id: 'links',       type: 'links',     c: 0,  r: 5, w: 3, h: 3, on: false },
+  { id: 'flash-1',     type: 'flash',     c: 0,  r: 0, w: 3, h: 4, on: false },
 ];
 const DEFAULTS = {
   day: 'A', anchorDate: null, autoAB: true, ab: true,
-  style: 'digital', h24: false, seconds: true, unit: 'F',
+  style: 'digital', h24: false, seconds: true, unit: 'F', alertBanner: 'all',
   font: 'thin', clockOnly: false, tz2: '', tz2Label: '', loc: null,
   schedules: [{ id: 'normal', name: 'Normal', split: false, rows: DEFAULT_SCHEDULE, rowsA: [], rowsB: [], days: [] }],
   noSchool: [], override: null, locked: false, textMode: 'bright', breakMins: '0', breakWhen: 'outside', classInfo: {}, schoolYear: { start: '', end: '' },
@@ -1012,7 +1085,7 @@ function fixSettings() {
     if (lay.g && lay.g !== g) rescaleLayout(lay, g / lay.g); // a layout synced from a computer on the other grid
     lay.g = g;
     for (const d of DEFAULT_LAYOUT)
-      if (!lay.items.some(it => it.id === d.id) && !TYPES[d.type].multi) lay.items.push({ ...scaleBox(clone(d), settings.fine ? 2 : 1), on: false });
+      if (!lay.items.some(it => it.id === d.id) && (!TYPES[d.type].multi || (d.type === 'flash' && !lay.items.some(it => it.type === 'flash')))) lay.items.push({ ...scaleBox(clone(d), settings.fine ? 2 : 1), on: false });
     const bat = lay.items.find(x => x.id === 'battery');
     if (bat && bat.w === 1 && bat.c === 11) { bat.c = 10; bat.w = 2; }
   }
@@ -1788,6 +1861,113 @@ function editableTitle(ref, d, fallback) {
   t.addEventListener('blur', () => { d.title = t.textContent.trim() || fallback; t.textContent = d.title; save(); renderWidgetList(); });
   return t;
 }
+
+// metronome engine (keeps ticking when widgets are rebuilt)
+var metro = { on: null, it: null, ctx: null, next: 0, beat: 0, timer: null };
+const TEMPO_NAMES = [[60, 'Largo'], [66, 'Larghetto'], [76, 'Adagio'], [108, 'Andante'], [120, 'Moderato'], [168, 'Allegro'], [200, 'Presto'], [999, 'Prestissimo']];
+const tempoName = bpm => TEMPO_NAMES.find(([m]) => bpm < m)[1];
+function metroItem() { return settings.layout.find(x => x.id === metro.on) || metro.it; }
+function metroClick(t, accent, sound) {
+  const a = metro.ctx, o = a.createOscillator(), g = a.createGain();
+  const [f, type, dur, vol] = sound === 'wood' ? [accent ? 1200 : 800, 'sine', 0.05, 0.5]
+    : sound === 'beep' ? [accent ? 1760 : 880, 'sine', 0.09, 0.25] : [accent ? 2400 : 1600, 'square', 0.025, 0.12];
+  o.type = type; o.frequency.value = f;
+  g.gain.setValueAtTime(vol, t);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g).connect(a.destination);
+  o.start(t); o.stop(t + dur + 0.02);
+}
+function metroTick() {
+  const it = metroItem();
+  if (!it) return metroStop();
+  const a = metro.ctx, bpm = dataFor(it).bpm || 100;
+  const bpb = Number(opt(it, 'bpb', 4)), acc = opt(it, 'accent', true), snd = opt(it, 'sound', 'click');
+  while (metro.next < a.currentTime + 0.12) {
+    const b = metro.beat % bpb;
+    metroClick(metro.next, acc && b === 0 && bpb > 1, snd);
+    setTimeout(() => metroPaint(b), Math.max(0, (metro.next - a.currentTime) * 1000));
+    metro.next += 60 / bpm; metro.beat++;
+  }
+}
+function metroStart(it) {
+  metroStop();
+  try {
+    if (!metro.ctx) metro.ctx = new (window.AudioContext || window.webkitAudioContext)();
+    metro.ctx.resume();
+  } catch (e) { toast('Sound isn’t available here', 2); return; }
+  metro.on = it.id; metro.it = it; metro.beat = 0; metro.next = metro.ctx.currentTime + 0.08;
+  metro.timer = setInterval(metroTick, 25);
+  metroTick();
+  metroPaint(-1);
+}
+function metroStop() { clearInterval(metro.timer); metro.timer = null; metro.on = null; metroPaint(-1); }
+function metroPaint(b) { for (const r of refs) if (r.it.type === 'metro' && r.paintBeat) r.paintBeat(metro.on === r.it.id ? b : -1); }
+
+// tuner engine
+var tuner = { on: null, stream: null, ctx: null, an: null, buf: null, timer: null, hist: [], last: 0, heard: 0 };
+const NOTE_NAMES = ['C', 'C♯', 'D', 'D♯', 'E', 'F', 'F♯', 'G', 'G♯', 'A', 'A♯', 'B'];
+const INSTRUMENTS = { viola: [48, 55, 62, 69], violin: [55, 62, 69, 76], cello: [36, 43, 50, 57], bass: [28, 33, 38, 43], guitar: [40, 45, 50, 55, 59, 64], chromatic: [] };
+const noteName = m => NOTE_NAMES[((m % 12) + 12) % 12];
+function detectPitch(buf, sr) {
+  let n = buf.length, rms = 0;
+  for (let i = 0; i < n; i++) rms += buf[i] * buf[i];
+  if (Math.sqrt(rms / n) < 0.008) return -1;
+  const maxLag = Math.min(n - 1, Math.floor(sr / 38)), minLag = Math.floor(sr / 1400);
+  const c = new Float32Array(maxLag + 2);
+  for (let lag = 0; lag <= maxLag + 1; lag++) { let sum = 0; for (let j = 0; j < n - lag; j++) sum += buf[j] * buf[j + lag]; c[lag] = sum; }
+  let d = minLag; while (d < maxLag && c[d] > c[d + 1]) d++;
+  let best = -1, pos = -1;
+  for (let i = d; i <= maxLag; i++) if (c[i] > best) { best = c[i]; pos = i; }
+  if (pos <= 0 || best < c[0] * 0.3) return -1;
+  // prefer the first strong peak (avoids jumping down an octave)
+  for (let i = d; i < pos; i++) if (c[i] > best * 0.9 && c[i] >= c[i - 1] && c[i] >= c[i + 1]) { pos = i; break; }
+  const x1 = c[pos - 1], x2 = c[pos], x3 = c[pos + 1], a2 = (x1 + x3 - 2 * x2) / 2, b2 = (x3 - x1) / 2;
+  return sr / (a2 ? pos - b2 / (2 * a2) : pos);
+}
+async function tunerStart(it) {
+  tunerStop();
+  if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) { toast('This browser can’t use the microphone', 2.5); return; }
+  try { tuner.stream = await navigator.mediaDevices.getUserMedia({ audio: { echoCancellation: false, noiseSuppression: false, autoGainControl: false } }); }
+  catch (e) { toast('Allow the microphone to use the tuner', 3); tunerPaint(); return; }
+  tuner.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  tuner.an = tuner.ctx.createAnalyser(); tuner.an.fftSize = 4096;
+  tuner.ctx.createMediaStreamSource(tuner.stream).connect(tuner.an);
+  tuner.buf = new Float32Array(tuner.an.fftSize);
+  tuner.on = it.id; tuner.hist = []; tuner.heard = Date.now(); tuner.last = 0;
+  tuner.timer = setInterval(tunerTick, 90);
+  tunerPaint();
+}
+function tunerStop() {
+  clearInterval(tuner.timer); tuner.timer = null;
+  if (tuner.stream) tuner.stream.getTracks().forEach(t => t.stop());
+  if (tuner.ctx) tuner.ctx.close().catch(() => {});
+  tuner.stream = tuner.ctx = tuner.an = null; tuner.on = null; tuner.last = 0;
+  tunerPaint();
+}
+function tunerTick() {
+  if (!refs.some(r => r.it.id === tuner.on) || document.hidden) return tunerStop();
+  tuner.an.getFloatTimeDomainData(tuner.buf);
+  const f = detectPitch(tuner.buf, tuner.ctx.sampleRate);
+  if (f > 0) { tuner.hist.push(f); if (tuner.hist.length > 5) tuner.hist.shift(); tuner.last = [...tuner.hist].sort((a, b) => a - b)[tuner.hist.length >> 1]; tuner.heard = Date.now(); }
+  else if (Date.now() - tuner.heard > 1200) { tuner.hist = []; tuner.last = 0; }
+  if (Date.now() - tuner.heard > 5 * 60 * 1000) { tunerStop(); toast('Tuner turned off after 5 quiet minutes', 2.5); return; }
+  tunerPaint();
+}
+function tunerPaint() { for (const r of refs) if (r.it.type === 'tuner' && r.paint) r.paint(); }
+addEventListener('visibilitychange', () => { if (document.hidden && tuner.on) tunerStop(); });
+
+// flashcards helpers
+function parseCards(text) {
+  const out = [];
+  for (const line of text.split(/\r?\n/)) {
+    const m = line.match(/^\s*(.+?)\s*(?:\t|=|\s[-–—:]\s|:)\s*(.+?)\s*$/);
+    if (m) out.push({ f: m[1], b: m[2] });
+  }
+  return out;
+}
+const cardsText = d => d.cards.map(c => `${c.f} = ${c.b}`).join('\n');
+const linkUrl = u => (u = u.trim()) && (/^[a-z][a-z0-9+.-]*:/i.test(u) ? u : 'https://' + u);
+const linkHost = u => { try { return new URL(u).hostname; } catch (e) { return ''; } };
 
 const TYPES = {
   clock: {
@@ -3208,6 +3388,252 @@ const TYPES = {
     },
   },
 
+  metro: {
+    name: 'Metronome', card: true,
+    data: { bpm: 100 },
+    build(ref, d) {
+      const head = mk('div', 'ct');
+      head.append(mk('span', null, 'Metronome'));
+      ref.term = mk('span', 'mterm');
+      head.append(ref.term);
+      const body = mk('div', 'mbody');
+      const row = mk('div', 'mbpm');
+      const minus = mk('button', 'mini', '−'), plus = mk('button', 'mini', '+');
+      ref.n = mk('span', 'n');
+      ref.n.title = 'Scroll to change, double-click to type';
+      row.append(minus, ref.n, plus);
+      ref.dots = mk('div', 'mdots');
+      const ctl = mk('div', 'mctl');
+      ref.play = mk('button', 'mini', 'Start');
+      const tap = mk('button', 'mini', 'Tap');
+      ctl.append(ref.play, tap);
+      body.append(row, ref.dots, ctl);
+      ref.inner.append(head, body);
+      const setBpm = v => {
+        d.bpm = Math.max(30, Math.min(300, Math.round(v)));
+        paint(); saveSoon();
+      };
+      const paint = () => {
+        setText(ref.n, String(d.bpm));
+        setText(ref.term, tempoName(d.bpm));
+        const bpb = Number(opt(ref.it, 'bpb', 4));
+        if (ref.dots.children.length !== bpb) {
+          ref.dots.innerHTML = '';
+          for (let i = 0; i < bpb; i++) ref.dots.append(mk('i', i === 0 && bpb > 1 && opt(ref.it, 'accent', true) ? 'acc' : ''));
+        }
+        setText(ref.play, metro.on === ref.it.id ? 'Stop' : 'Start');
+      };
+      let hold = null;
+      const repeat = dv => { setBpm(d.bpm + dv); hold = setTimeout(() => { hold = setInterval(() => setBpm(d.bpm + dv), 70); }, 400); };
+      const release = () => { clearTimeout(hold); clearInterval(hold); };
+      [[minus, -1], [plus, 1]].forEach(([b, dv]) => {
+        b.onpointerdown = e => { e.stopPropagation(); repeat(e.shiftKey ? dv * 5 : dv); };
+        b.onpointerup = b.onpointerleave = release;
+      });
+      ref.n.addEventListener('wheel', e => { e.preventDefault(); setBpm(d.bpm + (e.deltaY < 0 ? 1 : -1) * (e.shiftKey ? 5 : 1)); }, { passive: false });
+      ref.n.ondblclick = () => { const v = prompt('Tempo (beats per minute)', d.bpm); if (v && !isNaN(v)) setBpm(Number(v)); };
+      ref.play.onclick = e => { e.stopPropagation(); if (metro.on === ref.it.id) metroStop(); else metroStart(ref.it); paint(); };
+      let taps = [];
+      tap.onclick = e => {
+        e.stopPropagation();
+        const t = performance.now();
+        if (taps.length && t - taps[taps.length - 1] > 2000) taps = [];
+        taps.push(t); taps = taps.slice(-5);
+        if (taps.length >= 2) setBpm(60000 / ((taps[taps.length - 1] - taps[0]) / (taps.length - 1)));
+      };
+      ref.paintBeat = b => {
+        [...ref.dots.children].forEach((x, i) => x.classList.toggle('on', i === b));
+        ref.root.classList.toggle('beat', b === 0 && opt(ref.it, 'flash', false));
+        setText(ref.play, metro.on === ref.it.id ? 'Stop' : 'Start');
+      };
+      ref.redraw = paint;
+      paint();
+    },
+  },
+
+  tuner: {
+    name: 'Tuner', card: true,
+    build(ref) {
+      const head = mk('div', 'ct');
+      head.append(mk('span', null, 'Tuner'));
+      ref.btn = mk('button', 'mini', 'Start');
+      head.append(ref.btn);
+      const body = mk('div', 'tbody');
+      ref.note = mk('div', 'tnote');
+      ref.meter = mk('div', 'tmeter'); ref.dot = mk('b'); ref.meter.append(ref.dot);
+      ref.info = mk('div', 'tinfo');
+      ref.str = mk('div', 'tstr');
+      body.append(ref.note, ref.meter, ref.info, ref.str);
+      ref.inner.append(head, body);
+      ref.btn.onclick = e => { e.stopPropagation(); if (tuner.on === ref.it.id) tunerStop(); else tunerStart(ref.it); };
+      ref.paint = () => {
+        const on = tuner.on === ref.it.id, a4 = Number(opt(ref.it, 'a4', 440));
+        const strings = INSTRUMENTS[opt(ref.it, 'inst', 'viola')] || [];
+        setText(ref.btn, on ? 'Stop' : 'Start');
+        const f = on ? tuner.last : 0;
+        let midi = null, cents = 0;
+        if (f) { const m = 69 + 12 * Math.log2(f / a4); midi = Math.round(m); cents = Math.round((m - midi) * 100); }
+        const ok = midi != null && Math.abs(cents) <= 5;
+        ref.note.innerHTML = '';
+        if (midi != null) { ref.note.append(noteName(midi)); ref.note.append(mk('sub', null, String(Math.floor(midi / 12) - 1))); }
+        else ref.note.append(on ? '·' : '');
+        ref.note.classList.toggle('ok', ok);
+        ref.meter.classList.toggle('ok', ok);
+        ref.meter.style.visibility = on ? '' : 'hidden';
+        ref.dot.style.left = (50 + Math.max(-50, Math.min(50, cents))) + '%';
+        ref.dot.style.opacity = midi != null ? 1 : 0.2;
+        setText(ref.info, !on ? 'Press Start and allow the mic' : midi == null ? 'Play a note' :
+          (ok ? 'In tune' : cents < 0 ? `${-cents}¢ flat` : `${cents}¢ sharp`) + `   ·   ${f.toFixed(1)} Hz`);
+        if (ref.str.children.length !== strings.length || ref.str.dataset.k !== strings.join()) {
+          ref.str.innerHTML = ''; ref.str.dataset.k = strings.join();
+          strings.forEach(m => ref.str.append(mk('span', null, noteName(m))));
+        }
+        [...ref.str.children].forEach((x, i) => x.classList.toggle('on', strings[i] === midi));
+      };
+      ref.paint();
+    },
+  },
+
+  links: {
+    name: 'Quick links', card: true,
+    data: { items: [{ id: 'k1', n: 'Canvas', u: 'https://canvas.instructure.com' }, { id: 'k2', n: 'Gmail', u: 'https://mail.google.com' }, { id: 'k3', n: 'Docs', u: 'https://docs.google.com' }] },
+    build(ref, d) {
+      const head = mk('div', 'ct');
+      head.append(mk('span', null, 'Links'));
+      const addBtn = mk('button', 'mini', '+ Add');
+      head.append(addBtn);
+      ref.list = mk('div', 'lks');
+      const form = mk('div', 'lkform');
+      const nm = mk('input'); nm.placeholder = 'Name';
+      const url = mk('input'); url.placeholder = 'canvas.myschool.edu';
+      const ok = mk('button', 'mini', 'Add');
+      form.append(nm, url, ok);
+      ref.inner.append(head, ref.list, form);
+      let editing = null;
+      const openForm = item => {
+        editing = item || null;
+        nm.value = item ? item.n : ''; url.value = item ? item.u : '';
+        setText(ok, item ? 'Save' : 'Add');
+        form.classList.add('show'); (item ? nm : url).focus();
+      };
+      addBtn.onclick = e => { e.stopPropagation(); if (form.classList.contains('show') && !editing) form.classList.remove('show'); else openForm(); };
+      const commit = () => {
+        const u = linkUrl(url.value);
+        if (!u) { url.focus(); return; }
+        const n = nm.value.trim() || linkHost(u).replace(/^www\./, '') || u;
+        if (editing) Object.assign(editing, { n, u });
+        else d.items.push({ id: 'k' + Date.now().toString(36), n, u });
+        form.classList.remove('show'); editing = null;
+        save(); ref.redraw();
+      };
+      ok.onclick = e => { e.stopPropagation(); commit(); };
+      [nm, url].forEach(i => i.addEventListener('keydown', e => { if (e.key === 'Enter') commit(); if (e.key === 'Escape') { e.stopPropagation(); form.classList.remove('show'); } }));
+      ref.redraw = () => {
+        ref.list.innerHTML = '';
+        ref.list.classList.toggle('chips', opt(ref.it, 'look', 'list') === 'chips');
+        const icons = opt(ref.it, 'icons', true), newTab = opt(ref.it, 'newtab', true);
+        for (const item of d.items) {
+          const a = mk('a', 'lk row-h');
+          a.href = item.u;
+          if (newTab) { a.target = '_blank'; a.rel = 'noopener'; }
+          a.onclick = e => { if (document.body.classList.contains('layout-edit') || e.target.closest('.del, .ed')) e.preventDefault(); };
+          if (icons) { const img = mk('img'); img.alt = ''; img.loading = 'lazy'; img.src = `https://www.google.com/s2/favicons?domain=${encodeURIComponent(linkHost(item.u))}&sz=64`; img.onerror = () => img.remove(); a.append(img); }
+          a.append(mk('span', 'tx', item.n));
+          const ed = mk('span', 'ed', '✎'); ed.title = 'Edit';
+          ed.onclick = e => { e.preventDefault(); e.stopPropagation(); openForm(item); };
+          const del = mk('span', 'del', '×'); del.title = 'Remove';
+          del.onclick = e => { e.preventDefault(); e.stopPropagation(); d.items.splice(d.items.indexOf(item), 1); save(); ref.redraw(); };
+          a.append(ed, del);
+          ref.list.append(a);
+        }
+        if (!d.items.length) ref.list.append(mk('div', 'empty', 'Add sites you open a lot'));
+      };
+      ref.redraw();
+    },
+  },
+
+  flash: {
+    name: 'Flashcards', card: true, multi: true,
+    data: { title: 'Flashcards', cards: [], cur: '', flip: false },
+    build(ref, d) {
+      if (!Array.isArray(d.cards)) d.cards = [];
+      const head = mk('div', 'ct');
+      head.append(editableTitle(ref, d, 'Flashcards'));
+      const right = mk('span');
+      ref.count = mk('span', 'dprog');
+      const addBtn = mk('button', 'mini', '+ Add');
+      right.append(ref.count, document.createTextNode(' '), addBtn);
+      head.append(right);
+      ref.card = mk('div', 'fc');
+      const btns = mk('div', 'fcbtns');
+      const again = mk('button', 'mini', 'Again'), got = mk('button', 'mini', 'Got it');
+      btns.append(again, got);
+      const add = mk('div', 'fcadd');
+      const ta = mk('textarea'); ta.placeholder = 'One card per line:\nperro = dog\ngato = cat';
+      const r = mk('div', 'r');
+      const addOk = mk('button', 'mini', 'Add cards');
+      r.append(mk('span', null, 'front = back'), addOk);
+      add.append(ta, r);
+      ref.inner.append(head, ref.card, btns, add);
+
+      const left = () => d.cards.filter(c => !c.k);
+      const pick = (avoid) => {
+        const pool = left();
+        if (!pool.length) { d.cur = ''; return; }
+        if (opt(ref.it, 'order', 'shuffle') === 'order') {
+          const i = d.cards.findIndex(c => c.id === avoid);
+          d.cur = (d.cards.slice(i + 1).find(c => !c.k) || pool[0]).id;
+        } else {
+          const choices = pool.length > 1 ? pool.filter(c => c.id !== avoid) : pool;
+          d.cur = choices[Math.floor(Math.random() * choices.length)].id;
+        }
+        const side = opt(ref.it, 'side', 'front');
+        d.flip = side === 'back' ? true : side === 'mix' ? Math.random() < 0.5 : false;
+        d.startFlip = d.flip;
+      };
+      const next = known => {
+        const c = d.cards.find(x => x.id === d.cur);
+        if (c && known) c.k = true;
+        pick(c && c.id);
+        save(); ref.redraw();
+      };
+      ref.card.onclick = e => {
+        if (document.body.classList.contains('layout-edit')) return;
+        if (!d.cards.length) { add.classList.add('show'); ta.focus(); return; }
+        if (!left().length) { d.cards.forEach(c => c.k = false); pick(); save(); ref.redraw(); return; }
+        d.flip = !d.flip; saveSoon(); ref.redraw();
+      };
+      again.onclick = e => { e.stopPropagation(); next(false); };
+      got.onclick = e => { e.stopPropagation(); next(true); };
+      addBtn.onclick = e => { e.stopPropagation(); add.classList.toggle('show'); if (add.classList.contains('show')) ta.focus(); };
+      const addCards = () => {
+        const list = parseCards(ta.value);
+        if (!list.length) { ta.focus(); toast('Write each card as front = back', 2); return; }
+        list.forEach((c, i) => d.cards.push({ id: 'f' + Date.now().toString(36) + i, f: c.f, b: c.b, k: false }));
+        ta.value = ''; add.classList.remove('show');
+        if (!d.cur || !d.cards.some(c => c.id === d.cur && !c.k)) pick();
+        save(); ref.redraw();
+        toast(`Added ${list.length} card${list.length === 1 ? '' : 's'}`, 1.5);
+      };
+      addOk.onclick = e => { e.stopPropagation(); addCards(); };
+      ta.addEventListener('keydown', e => { if (e.key === 'Enter' && (e.ctrlKey || e.metaKey)) addCards(); if (e.key === 'Escape') { e.stopPropagation(); add.classList.remove('show'); } });
+
+      ref.redraw = () => {
+        const pool = left();
+        if (pool.length && !pool.some(c => c.id === d.cur)) pick();
+        const c = d.cards.find(x => x.id === d.cur);
+        ref.card.className = 'fc';
+        btns.style.visibility = c ? '' : 'hidden';
+        if (!d.cards.length) { ref.card.classList.add('empty'); setText(ref.card, 'No cards yet. Click + Add'); setText(ref.count, ''); return; }
+        setText(ref.count, pool.length ? `${pool.length} left` : '');
+        if (!c) { ref.card.classList.add('empty'); setText(ref.card, `All ${d.cards.length} done. Click to go again`); return; }
+        if (d.flip !== !!d.startFlip) ref.card.classList.add('back');
+        setText(ref.card, d.flip ? c.b : c.f);
+      };
+      ref.redraw();
+    },
+  },
+
   history: {
     name: 'On this day',
     build(ref) {
@@ -3749,6 +4175,8 @@ const PRESETS = {
   planner: [['clock', 3, 0, 6, 2], ['date', 3, 2, 6, 1], ['week', 3, 3, 6, 3], ['classes', 3, 6, 6, 1], ['events', 3, 7, 6, 1],
             ['homework', 0, 0, 3, 5], ['reminders', 0, 5, 3, 3], ['today', 9, 0, 3, 4, { mode: 'agenda' }], ['planner', 9, 4, 3, 4]],
   weather: [['clock', 3, 0, 6, 2], ['weather', 3, 2, 6, 1], ['hourly', 2, 3, 8, 2], ['forecast', 2, 5, 8, 2], ['sun', 3, 7, 6, 1]],
+  music: [['clock', 3, 0, 6, 2], ['date', 3, 2, 6, 1], ['metro', 3, 3, 3, 4], ['tuner', 6, 3, 3, 4], ['weather', 3, 7, 6, 1],
+          ['flash', 0, 0, 3, 5], ['links', 0, 5, 3, 3], ['pomo', 9, 0, 3, 3], ['habits', 9, 3, 3, 3], ['battery', 10, 7, 2, 1]],
   packed: [['clock', 3, 0, 6, 2], ['classes', 3, 2, 6, 1], ['date', 3, 3, 6, 1], ['weather', 3, 4, 6, 1], ['sun', 3, 5, 6, 1],
            ['progress', 3, 6, 6, 2], ['homework', 0, 0, 3, 4], ['checklist', 0, 4, 3, 4], ['calendar', 9, 0, 3, 3],
            ['forecast', 9, 3, 3, 2], ['reminders', 9, 5, 3, 3]],
@@ -4104,6 +4532,46 @@ function widgetOptions(it) {
         optSeg('Red when low', ONOFF, O('lowRed', true), S('lowRed')));
       if (battPct == null) rows.push(mk('div', 'sub', "This browser doesn't share battery info. Chrome and Edge do."));
       break;
+    case 'metro':
+      rows.push(
+        optSeg('Beats per bar', [[1, '1'], [2, '2'], [3, '3'], [4, '4'], [5, '5'], [6, '6']], O('bpb', 4), S('bpb')),
+        optSeg('Accent beat 1', ONOFF, O('accent', true), S('accent')),
+        optSeg('Sound', [['click', 'Click'], ['wood', 'Wood'], ['beep', 'Beep']], O('sound', 'click'), S('sound')),
+        optSeg('Flash on beat 1', ONOFF, O('flash', false), S('flash')));
+      break;
+    case 'tuner':
+      rows.push(
+        optSeg('Instrument', [['viola', 'Viola'], ['violin', 'Violin'], ['cello', 'Cello'], ['bass', 'Bass'], ['guitar', 'Guitar'], ['chromatic', 'Any']], O('inst', 'viola'), S('inst')),
+        optSeg('A =', [[440, '440'], [441, '441'], [442, '442'], [443, '443']], O('a4', 440), S('a4')),
+        mk('div', 'sub', 'The mic only listens while the tuner is on. It turns off when you leave the page or after 5 quiet minutes.'));
+      break;
+    case 'links':
+      rows.push(
+        optSeg('Look', [['list', 'List'], ['chips', 'Buttons']], O('look', 'list'), S('look')),
+        optSeg('Site icons', ONOFF, O('icons', true), S('icons')),
+        optSeg('Open in new tab', ONOFF, O('newtab', true), S('newtab')));
+      break;
+    case 'flash': {
+      rows.push(
+        optSeg('Show first', [['front', 'Front'], ['back', 'Back'], ['mix', 'Mix']], O('side', 'front'), S('side')),
+        optSeg('Order', [['shuffle', 'Shuffle'], ['order', 'In order']], O('order', 'shuffle'), S('order')),
+        optBtn('Cards', 'Edit all…', () => {
+          const d = dataFor(it);
+          const ta = mk('textarea', 'note');
+          ta.value = cardsText(d);
+          Object.assign(ta.style, { width: '100%', height: '40vh', boxSizing: 'border-box', background: '#111', border: '1px solid #222', borderRadius: '6px', color: '#ccc', padding: '8px', font: 'inherit' });
+          showModal({ title: 'Edit cards', body: ['One card per line, written as front = back.', ta], actions: [
+            { label: 'Cancel' },
+            { label: 'Save', primary: true, fn: () => {
+              const old = new Map(d.cards.map(c => [c.f + '\u0000' + c.b, c]));
+              d.cards = parseCards(ta.value).map((c, i) => old.get(c.f + '\u0000' + c.b) || { id: 'f' + Date.now().toString(36) + i, f: c.f, b: c.b, k: false });
+              afterOptChange();
+            } }] });
+        }),
+        optBtn('Progress', 'Start over', () => { const d = dataFor(it); d.cards.forEach(c => c.k = false); d.cur = ''; afterOptChange(); }),
+        optBtn('Cards', 'Delete all', () => { if (!confirm('Delete every card in this deck?')) return; Object.assign(dataFor(it), { cards: [], cur: '' }); afterOptChange(); }));
+      break;
+    }
     case 'checklist':
       rows.push(
         optSeg('Checked items', [[false, 'Show'], [true, 'Hide']], O('hideDone', false), S('hideDone')),
@@ -4368,6 +4836,7 @@ function addCard(type) {
 $('addNote').onclick = e => { e.stopPropagation(); addCard('notes'); };
 $('addCheck').onclick = e => { e.stopPropagation(); addCard('checklist'); };
 $('addDaily').onclick = e => { e.stopPropagation(); addCard('daily'); };
+$('addFlash').onclick = e => { e.stopPropagation(); addCard('flash'); };
 $('resetLayout').onclick = () => {
   if (!confirm('Move every widget in this layout back to where it started?')) return;
   for (const it of settings.layout) {
@@ -4423,6 +4892,7 @@ document.querySelectorAll('.seg[data-key]').forEach(seg => {
     save(); applySettings(); tick();
     if (key === 'unit' && old !== settings[key]) loadWeather();
     if (key === 'h24') paintWeather();
+    if (key === 'alertBanner') paintAlertBanner();
   });
 });
 
@@ -4675,6 +5145,9 @@ async function loadAlerts() {
     const r = await fetch(`https://api.weather.gov/alerts/active?point=${lat.toFixed(4)},${lon.toFixed(4)}`);
     if (!r.ok) throw 0;
     const feats = (await r.json()).features || [];
+    wxAlerts = feats.map(f => f.properties || {}).filter(p => p.event).map(p => ({
+      id: p.id || p.event + (p.ends || p.expires || ''), event: p.event, ends: p.ends || p.expires || '',
+      headline: p.headline || p.event, desc: [p.description, p.instruction].filter(Boolean).join('\n\n'), severity: p.severity || '' }));
     const seen = new Set(), parts = [];
     for (const f of feats) {
       const p = f.properties || {};
@@ -4690,9 +5163,43 @@ async function loadAlerts() {
       parts.push(`⚠︎ ${p.event}${until}`);
     }
     wxText.alert = parts.slice(0, 2).join('   ·   ');
-  } catch (e) { wxText.alert = ''; }
+  } catch (e) { wxText.alert = ''; wxAlerts = []; }
   paintWeather();
+  paintAlertBanner();
 }
+var wxAlerts = [];
+const hiddenAlerts = () => { try { return JSON.parse(localStorage.getItem('clockAlertsHidden')) || []; } catch (e) { return []; } };
+function bannerAlerts() {
+  const mode = settings.alertBanner || 'all', hid = hiddenAlerts(), now = Date.now();
+  if (mode === 'off') return [];
+  return wxAlerts.filter(a => !hid.includes(a.id) && (!a.ends || new Date(a.ends) > now) && (mode === 'all' || /warning/i.test(a.event)))
+    .sort((a, b) => (/warning/i.test(b.event) - /warning/i.test(a.event)));
+}
+function paintAlertBanner() {
+  const el = $('wxbanner'), list = bannerAlerts();
+  el.classList.toggle('show', list.length > 0);
+  if (!list.length) return;
+  const a = list[0], d = a.ends ? new Date(a.ends) : null;
+  const until = d ? ` until ${clockStr(d.getHours(), d.getMinutes())}${ymd(d) !== ymd(new Date()) ? ' ' + d.toLocaleDateString([], { weekday: 'short' }) : ''}` : '';
+  setText(el.querySelector('.t'), `⚠︎ ${a.event}${until}${list.length > 1 ? `   +${list.length - 1} more` : ''}`);
+  el.title = 'Details';
+}
+$('wxbanner').onclick = e => {
+  const list = bannerAlerts();
+  if (!list.length) return;
+  if (e.target.closest('.x')) {
+    e.stopPropagation();
+    const hid = hiddenAlerts().concat(list[0].id).slice(-50);
+    try { localStorage.setItem('clockAlertsHidden', JSON.stringify(hid)); } catch (er) {}
+    paintAlertBanner();
+    return;
+  }
+  e.stopPropagation();
+  const body = [];
+  list.forEach(a => { body.push(mk('div', 'ed-sub', a.headline)); if (a.desc) body.push(mk('div', 'wxd', a.desc)); });
+  body.push(mk('div', 'sub', 'From the National Weather Service.'));
+  showModal({ title: list.length > 1 ? 'Weather alerts' : list[0].event, body, actions: [{ label: 'Close', primary: true }] });
+};
 
 function paintWeather() {
   if (wx && wx.current) {
@@ -5146,15 +5653,23 @@ function openFeedback() {
 $('fbBtn').onclick = e => { e.stopPropagation(); openFeedback(); };
 
 // what's new
-const VERSION = '1.8';
+const VERSION = '1.9';
 const CHANGELOG = [
+  { v: '1.9', items: ['Metronome with tap tempo', 'Tuner for viola, violin, cello, bass and guitar', 'Quick links', 'Flashcards', 'Weather alert banner for warnings near you', 'Music preset', 'Sync button, and sync merges changes from all your computers', 'Version number at the bottom of Settings'] },
   { v: '1.8', items: ['Share a link to your layout, or a code for your bell schedule', 'Send feedback from Settings', 'Phone layout: widgets stack in one column', 'Ctrl+K searches every widget and setting', 'Fine grid for exact placement', 'A dozen fonts', 'Your own photo as the background', 'Seasonal effects: leaves, snow, petals, fireflies', 'Each layout can have its own background', 'Ring look for the class countdown', 'Alarm sounds you can pick'] },
   { v: '1.7', items: ['Bright text mode', 'On this day skips grim events and can show birthdays', 'Today’s schedule, day timeline, today agenda, search box, daily checklist, message board, On this day widgets'] },
   { v: '1.6', items: ['Keep me signed in', 'Background button', 'More presets'] },
 ];
+function verCmp(a, b) {
+  const x = String(a).split('.').map(Number), y = String(b).split('.').map(Number);
+  for (let i = 0; i < Math.max(x.length, y.length); i++) if ((x[i] || 0) !== (y[i] || 0)) return (x[i] || 0) - (y[i] || 0);
+  return 0;
+}
+setText($('verLine'), `glance ${VERSION}`);
+$('verLine').onclick = e => { e.stopPropagation(); showWhatsNew(true); };
 function showWhatsNew(force) {
   const seen = settings.seenVersion;
-  const list = force ? CHANGELOG : CHANGELOG.filter(c => !seen || c.v > seen);
+  const list = force ? CHANGELOG : CHANGELOG.filter(c => !seen || verCmp(c.v, seen) > 0);
   if (!list.length) return;
   const box = mk('div', 'wn');
   list.slice(0, 3).forEach(c => {
