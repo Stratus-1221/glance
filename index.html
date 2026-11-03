@@ -634,6 +634,29 @@
   .mdots i.acc { border-color: #888; }
   .mdots i.on { background: #ddd; border-color: #ddd; }
   .mctl { display: flex; gap: 1.4em; }
+  .mrow2 { display: flex; align-items: center; gap: 0.9em; }
+  .tsig { display: flex; flex-direction: column; align-items: center; line-height: 1; }
+  .tsig input, .prin input { width: 1.8em; background: none; border: 0; color: var(--c2); font: inherit; font-size: 1.05em; text-align: center; outline: none; padding: 0.05em 0;
+                              -moz-appearance: textfield; appearance: textfield; }
+  .tsig input::-webkit-inner-spin-button, .prin input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+  .tsig input:focus, .prin input:focus { background: #151515; border-radius: 4px; }
+  .tsig hr { width: 1.3em; border: 0; border-top: 1px solid #555; margin: 0.12em 0; }
+  .mdots { flex-wrap: wrap; max-width: 12em; justify-content: center; }
+  .mdots i.mid { border-color: #666; }
+  /* polyrhythm */
+  .prin { display: flex; align-items: center; gap: 0.3em; font-size: 1.6em; font-weight: 200; color: #666; }
+  .prin input { font-size: 1em; font-weight: 200; width: 1.5em; }
+  .plane { position: relative; width: 86%; height: 1.4em; }
+  .plane::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; border-top: 1px solid #222; }
+  .plane i { position: absolute; top: 50%; width: 0.6em; height: 0.6em; margin: -0.3em 0 0 -0.3em; border-radius: 50%; border: 1px solid #555; background: #000; }
+  .plane.b i { border-radius: 2px; }
+  .plane i.on { background: #ddd; border-color: #ddd; }
+  .plane.b i.on { background: #9fc3e6; border-color: #9fc3e6; }
+  .pcur { position: absolute; top: -0.2em; bottom: -0.2em; width: 1px; background: #666; left: 0; display: none; }
+  .plbl { position: absolute; left: -1.6em; top: 50%; transform: translateY(-50%); color: #555; font-size: 0.8em; }
+  .a4row { display: flex; align-items: center; gap: 8px; }
+  .a4row input[type=range] { width: 140px; accent-color: #888; }
+  .a4row input[type=number] { width: 64px; background: #111; border: 1px solid #222; border-radius: 6px; color: #ccc; font: inherit; padding: 3px 6px; color-scheme: dark; }
   .mctl .mini { font-size: 1em; letter-spacing: 0.08em; text-transform: uppercase; }
   .t-metro.beat .wi { border-color: #555; }
   /* tuner */
@@ -1056,6 +1079,7 @@ const DEFAULT_LAYOUT = [
   { id: 'tuner',       type: 'tuner',     c: 6,  r: 3, w: 3, h: 4, on: false },
   { id: 'links',       type: 'links',     c: 0,  r: 5, w: 3, h: 3, on: false },
   { id: 'flash-1',     type: 'flash',     c: 0,  r: 0, w: 3, h: 4, on: false },
+  { id: 'poly',        type: 'poly',      c: 9,  r: 3, w: 3, h: 3, on: false },
 ];
 const DEFAULTS = {
   day: 'A', anchorDate: null, autoAB: true, ab: true,
@@ -1867,10 +1891,12 @@ var metro = { on: null, it: null, ctx: null, next: 0, beat: 0, timer: null };
 const TEMPO_NAMES = [[60, 'Largo'], [66, 'Larghetto'], [76, 'Adagio'], [108, 'Andante'], [120, 'Moderato'], [168, 'Allegro'], [200, 'Presto'], [999, 'Prestissimo']];
 const tempoName = bpm => TEMPO_NAMES.find(([m]) => bpm < m)[1];
 function metroItem() { return settings.layout.find(x => x.id === metro.on) || metro.it; }
-function metroClick(t, accent, sound) {
+// level: 2 = first beat, 1 = start of a group (6/8 etc.), 0 = other beats. pitch shifts a sound for a second layer
+function metroClick(t, level, sound, pitch = 1) {
   const a = metro.ctx, o = a.createOscillator(), g = a.createGain();
-  const [f, type, dur, vol] = sound === 'wood' ? [accent ? 1200 : 800, 'sine', 0.05, 0.5]
-    : sound === 'beep' ? [accent ? 1760 : 880, 'sine', 0.09, 0.25] : [accent ? 2400 : 1600, 'square', 0.025, 0.12];
+  const lv = level === true ? 2 : level || 0;
+  const [base, type, dur, vol] = sound === 'wood' ? [800, 'sine', 0.05, 0.5] : sound === 'beep' ? [880, 'sine', 0.09, 0.25] : [1600, 'square', 0.025, 0.12];
+  const f = base * pitch * (lv === 2 ? 1.5 : lv === 1 ? 1.22 : 1);
   o.type = type; o.frequency.value = f;
   g.gain.setValueAtTime(vol, t);
   g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
@@ -1882,26 +1908,92 @@ function metroTick() {
   if (!it) return metroStop();
   const a = metro.ctx, bpm = dataFor(it).bpm || 100;
   const bpb = Number(opt(it, 'bpb', 4)), acc = opt(it, 'accent', true), snd = opt(it, 'sound', 'click');
+  const grp = metroGroup(it);
   while (metro.next < a.currentTime + 0.12) {
     const b = metro.beat % bpb;
-    metroClick(metro.next, acc && b === 0 && bpb > 1, snd);
-    setTimeout(() => metroPaint(b), Math.max(0, (metro.next - a.currentTime) * 1000));
+    metroClick(metro.next, !acc || bpb < 2 ? 0 : b === 0 ? 2 : grp && b % grp === 0 ? 1 : 0, snd);
+    const lvl = !acc || bpb < 2 ? 0 : b === 0 ? 2 : grp && b % grp === 0 ? 1 : 0;
+    setTimeout(() => { metroPaint(b); buzz(it, lvl === 2 ? 45 : lvl === 1 ? 30 : 18); }, Math.max(0, (metro.next - a.currentTime) * 1000));
     metro.next += 60 / bpm; metro.beat++;
   }
 }
+// compound meters (6/8, 9/8, 12/8...) are felt in groups of 3
+function metroGroup(it) { const n = Number(opt(it, 'bpb', 4)), den = Number(opt(it, 'den', 4)); return den >= 8 && n > 3 && n % 3 === 0 ? 3 : 0; }
+function audioCtx() {
+  if (!metro.ctx) metro.ctx = new (window.AudioContext || window.webkitAudioContext)();
+  metro.ctx.resume();
+  return metro.ctx;
+}
 function metroStart(it) {
-  metroStop();
-  try {
-    if (!metro.ctx) metro.ctx = new (window.AudioContext || window.webkitAudioContext)();
-    metro.ctx.resume();
-  } catch (e) { toast('Sound isn’t available here', 2); return; }
+  metroStop(); polyStop();
+  try { audioCtx(); } catch (e) { toast('Sound isn’t available here', 2); return; }
   metro.on = it.id; metro.it = it; metro.beat = 0; metro.next = metro.ctx.currentTime + 0.08;
   metro.timer = setInterval(metroTick, 25);
   metroTick();
   metroPaint(-1);
 }
 function metroStop() { clearInterval(metro.timer); metro.timer = null; metro.on = null; metroPaint(-1); }
+// haptics: phones vibrate on each beat (Android browsers; iPhones don't allow it from websites)
+const isPhone = () => matchMedia('(pointer: coarse)').matches;
+const canBuzz = () => 'vibrate' in navigator;
+function buzz(it, ms) { if (canBuzz() && opt(it, 'haptic', isPhone())) try { navigator.vibrate(ms); } catch (e) {} }
 function metroPaint(b) { for (const r of refs) if (r.it.type === 'metro' && r.paintBeat) r.paintBeat(metro.on === r.it.id ? b : -1); }
+
+// polyrhythm engine: layer A plays `a` notes in the time layer B plays `b`; tempo = layer B's beats per minute
+var poly = { on: null, it: null, start: 0, idx: 0, cycle: 0, ev: [], timer: null, raf: null };
+function polyEvents(a, b) {
+  const ev = [];
+  for (let i = 0; i < a; i++) ev.push({ x: i / a, layer: 'a', i });
+  for (let j = 0; j < b; j++) ev.push({ x: j / b, layer: 'b', i: j });
+  return ev.sort((p, q) => p.x - q.x || (p.layer < q.layer ? -1 : 1));
+}
+function polyItem() { return settings.layout.find(x => x.id === poly.on) || poly.it; }
+function polyLen(it) { const b = Number(opt(it, 'b', 2)) || 2, d = dataFor(it); return b * 60 / (d.bpm || 60); }
+function polyTick() {
+  const it = polyItem();
+  if (!it) return polyStop();
+  const a = metro.ctx, A = Number(opt(it, 'a', 3)), B = Number(opt(it, 'b', 2));
+  const key = A + ':' + B;
+  if (poly.key !== key) { poly.key = key; poly.ev = polyEvents(A, B); poly.idx = 0; poly.start = Math.max(poly.start, a.currentTime + 0.05); }
+  const snd = opt(it, 'sound', 'click'), acc = opt(it, 'accent', true);
+  for (;;) {
+    const L = polyLen(it), e = poly.ev[poly.idx], t = poly.start + e.x * L;
+    if (t >= a.currentTime + 0.12) break;
+    metroClick(t, acc && e.i === 0 ? 2 : 0, snd, e.layer === 'a' ? 1 : 0.66);
+    const lay = e.layer, idx = e.i;
+    setTimeout(() => { polyFlash(lay, idx); buzz(it, idx === 0 && acc ? 45 : lay === 'a' ? 25 : 14); }, Math.max(0, (t - a.currentTime) * 1000));
+    if (++poly.idx >= poly.ev.length) { poly.idx = 0; poly.start += L; }
+  }
+}
+function polyFrame() {
+  const it = polyItem();
+  if (!poly.on || !it) return;
+  const L = polyLen(it), x = ((metro.ctx.currentTime - poly.start) / L % 1 + 1) % 1;
+  for (const r of refs) if (r.it.id === poly.on && r.cursor) { r.cursor.style.display = 'block'; r.cursor.style.left = (x * 100) + '%'; }
+  poly.raf = requestAnimationFrame(polyFrame);
+}
+function polyFlash(layer, i) {
+  for (const r of refs) if (r.it.id === poly.on && r.lanes) {
+    const dots = r.lanes[layer].querySelectorAll('i');
+    dots.forEach((d, k) => d.classList.toggle('on', k === i));
+    clearTimeout(r['fl' + layer]);
+    r['fl' + layer] = setTimeout(() => dots.forEach(d => d.classList.remove('on')), 120);
+  }
+}
+function polyStart(it) {
+  polyStop(); metroStop();
+  try { audioCtx(); } catch (e) { toast('Sound isn’t available here', 2); return; }
+  poly.on = it.id; poly.it = it; poly.key = ''; poly.start = metro.ctx.currentTime + 0.08;
+  poly.timer = setInterval(polyTick, 25);
+  polyTick();
+  poly.raf = requestAnimationFrame(polyFrame);
+  polyPaint();
+}
+function polyStop() {
+  clearInterval(poly.timer); cancelAnimationFrame(poly.raf); poly.timer = null; poly.on = null;
+  polyPaint();
+}
+function polyPaint() { for (const r of refs) if (r.it.type === 'poly' && r.redraw) r.redraw(); }
 
 // tuner engine
 var tuner = { on: null, stream: null, ctx: null, an: null, buf: null, timer: null, hist: [], last: 0, heard: 0 };
@@ -3403,11 +3495,32 @@ const TYPES = {
       ref.n.title = 'Scroll to change, double-click to type';
       row.append(minus, ref.n, plus);
       ref.dots = mk('div', 'mdots');
+      const sig = mk('div', 'tsig');
+      sig.title = 'Time signature';
+      const top = mk('input'), bot = mk('input');
+      [top, bot].forEach(x => { x.type = 'number'; x.inputMode = 'numeric'; });
+      top.min = 1; top.max = 16; bot.min = 1; bot.max = 32;
+      sig.append(top, mk('hr'), bot);
+      const row2 = mk('div', 'mrow2');
+      row2.append(sig, ref.dots);
       const ctl = mk('div', 'mctl');
       ref.play = mk('button', 'mini', 'Start');
       const tap = mk('button', 'mini', 'Tap');
       ctl.append(ref.play, tap);
-      body.append(row, ref.dots, ctl);
+      body.append(row, row2, ctl);
+      const fixSig = () => {
+        let n = Math.round(Number(top.value)), dn = Math.round(Number(bot.value));
+        n = n >= 1 && n <= 16 ? n : Number(opt(ref.it, 'bpb', 4));
+        dn = [1, 2, 4, 8, 16, 32].includes(dn) ? dn : Number(opt(ref.it, 'den', 4));
+        setOpt(ref.it, 'bpb', n); setOpt(ref.it, 'den', dn);
+        top.value = n; bot.value = dn;
+        ref.dots.innerHTML = ''; paint(); saveSoon();
+      };
+      [top, bot].forEach(x => {
+        x.addEventListener('change', fixSig);
+        x.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') x.blur(); });
+        x.addEventListener('pointerdown', e => e.stopPropagation());
+      });
       ref.inner.append(head, body);
       const setBpm = v => {
         d.bpm = Math.max(30, Math.min(300, Math.round(v)));
@@ -3416,10 +3529,12 @@ const TYPES = {
       const paint = () => {
         setText(ref.n, String(d.bpm));
         setText(ref.term, tempoName(d.bpm));
-        const bpb = Number(opt(ref.it, 'bpb', 4));
+        const bpb = Number(opt(ref.it, 'bpb', 4)), grp = metroGroup(ref.it), acc = opt(ref.it, 'accent', true);
+        if (document.activeElement !== top) top.value = bpb;
+        if (document.activeElement !== bot) bot.value = Number(opt(ref.it, 'den', 4));
         if (ref.dots.children.length !== bpb) {
           ref.dots.innerHTML = '';
-          for (let i = 0; i < bpb; i++) ref.dots.append(mk('i', i === 0 && bpb > 1 && opt(ref.it, 'accent', true) ? 'acc' : ''));
+          for (let i = 0; i < bpb; i++) ref.dots.append(mk('i', !acc || bpb < 2 ? '' : i === 0 ? 'acc' : grp && i % grp === 0 ? 'mid' : ''));
         }
         setText(ref.play, metro.on === ref.it.id ? 'Stop' : 'Start');
       };
@@ -3448,6 +3563,72 @@ const TYPES = {
       };
       ref.redraw = paint;
       paint();
+    },
+  },
+
+  poly: {
+    name: 'Polyrhythm', card: true,
+    data: { bpm: 60 },
+    build(ref, d) {
+      const head = mk('div', 'ct');
+      head.append(mk('span', null, 'Polyrhythm'));
+      ref.play = mk('button', 'mini', 'Start');
+      head.append(ref.play);
+      const body = mk('div', 'mbody');
+      const ratio = mk('div', 'prin');
+      const ia = mk('input'), ib = mk('input');
+      [ia, ib].forEach(x => { x.type = 'number'; x.inputMode = 'numeric'; x.min = 1; x.max = 16; });
+      ratio.append(ia, mk('span', null, ':'), ib);
+      ratio.title = 'Notes in each layer';
+      ref.lanes = { a: mk('div', 'plane'), b: mk('div', 'plane b') };
+      const lanes = mk('div'); Object.assign(lanes.style, { width: '100%', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.5em', position: 'relative' });
+      ref.cursor = mk('div', 'pcur');
+      const wrap = mk('div'); Object.assign(wrap.style, { position: 'relative', width: '86%', display: 'flex', flexDirection: 'column', gap: '0.5em' });
+      ref.lanes.a.style.width = ref.lanes.b.style.width = '100%';
+      wrap.append(ref.lanes.a, ref.lanes.b, ref.cursor);
+      lanes.append(wrap);
+      const row = mk('div', 'mbpm');
+      const minus = mk('button', 'mini', '−'), plus = mk('button', 'mini', '+');
+      ref.n = mk('span', 'n'); ref.n.style.fontSize = '1.8em';
+      ref.n.title = 'Tempo of the second layer. Scroll to change, double-click to type';
+      row.append(minus, ref.n, plus);
+      body.append(ratio, lanes, row);
+      ref.inner.append(head, body);
+      const setBpm = v => { d.bpm = Math.max(20, Math.min(240, Math.round(v))); ref.redraw(); saveSoon(); };
+      let hold = null;
+      const release = () => { clearTimeout(hold); clearInterval(hold); };
+      [[minus, -1], [plus, 1]].forEach(([b, dv]) => {
+        b.onpointerdown = e => { e.stopPropagation(); setBpm(d.bpm + dv); hold = setTimeout(() => { hold = setInterval(() => setBpm(d.bpm + dv), 70); }, 400); };
+        b.onpointerup = b.onpointerleave = release;
+      });
+      ref.n.addEventListener('wheel', e => { e.preventDefault(); setBpm(d.bpm + (e.deltaY < 0 ? 1 : -1)); }, { passive: false });
+      ref.n.ondblclick = () => { const v = prompt('Tempo (beats per minute of the second layer)', d.bpm); if (v && !isNaN(v)) setBpm(Number(v)); };
+      const fix = () => {
+        const clampN = (x, k, def) => { const n = Math.round(Number(x.value)); const v = n >= 1 && n <= 16 ? n : Number(opt(ref.it, k, def)); setOpt(ref.it, k, v); x.value = v; };
+        clampN(ia, 'a', 3); clampN(ib, 'b', 2);
+        ref.redraw(); saveSoon();
+      };
+      [ia, ib].forEach(x => {
+        x.addEventListener('change', fix);
+        x.addEventListener('keydown', e => { e.stopPropagation(); if (e.key === 'Enter') x.blur(); });
+        x.addEventListener('pointerdown', e => e.stopPropagation());
+      });
+      ref.play.onclick = e => { e.stopPropagation(); if (poly.on === ref.it.id) polyStop(); else polyStart(ref.it); };
+      ref.redraw = () => {
+        const A = Number(opt(ref.it, 'a', 3)), B = Number(opt(ref.it, 'b', 2));
+        if (document.activeElement !== ia) ia.value = A;
+        if (document.activeElement !== ib) ib.value = B;
+        setText(ref.n, String(d.bpm || 60));
+        setText(ref.play, poly.on === ref.it.id ? 'Stop' : 'Start');
+        for (const [k, n] of [['a', A], ['b', B]]) {
+          const lane = ref.lanes[k];
+          if (lane.dataset.n === String(n)) continue;
+          lane.dataset.n = n; lane.innerHTML = '';
+          for (let i = 0; i < n; i++) { const dot = mk('i'); dot.style.left = (i / n * 100) + '%'; lane.append(dot); }
+        }
+        if (poly.on !== ref.it.id) ref.cursor.style.display = 'none';
+      };
+      ref.redraw();
     },
   },
 
@@ -4176,7 +4357,7 @@ const PRESETS = {
             ['homework', 0, 0, 3, 5], ['reminders', 0, 5, 3, 3], ['today', 9, 0, 3, 4, { mode: 'agenda' }], ['planner', 9, 4, 3, 4]],
   weather: [['clock', 3, 0, 6, 2], ['weather', 3, 2, 6, 1], ['hourly', 2, 3, 8, 2], ['forecast', 2, 5, 8, 2], ['sun', 3, 7, 6, 1]],
   music: [['clock', 3, 0, 6, 2], ['date', 3, 2, 6, 1], ['metro', 3, 3, 3, 4], ['tuner', 6, 3, 3, 4], ['weather', 3, 7, 6, 1],
-          ['flash', 0, 0, 3, 5], ['links', 0, 5, 3, 3], ['pomo', 9, 0, 3, 3], ['habits', 9, 3, 3, 3], ['battery', 10, 7, 2, 1]],
+          ['flash', 0, 0, 3, 5], ['links', 0, 5, 3, 3], ['pomo', 9, 0, 3, 3], ['poly', 9, 3, 3, 4], ['battery', 10, 7, 2, 1]],
   packed: [['clock', 3, 0, 6, 2], ['classes', 3, 2, 6, 1], ['date', 3, 3, 6, 1], ['weather', 3, 4, 6, 1], ['sun', 3, 5, 6, 1],
            ['progress', 3, 6, 6, 2], ['homework', 0, 0, 3, 4], ['checklist', 0, 4, 3, 4], ['calendar', 9, 0, 3, 3],
            ['forecast', 9, 3, 3, 2], ['reminders', 9, 5, 3, 3]],
@@ -4407,6 +4588,30 @@ function optNode(label, node) {
   return row;
 }
 const ONOFF = [[true, 'On'], [false, 'Off']];
+function optA4(it) {
+  const row = mk('div', 'a4row');
+  const sl = mk('input'), num = mk('input');
+  sl.type = 'range'; sl.min = 400; sl.max = 480; sl.step = 1;
+  num.type = 'number'; num.min = 380; num.max = 500; num.step = 0.1;
+  const cur = Number(opt(it, 'a4', 440));
+  sl.value = Math.round(cur); num.value = cur;
+  const set = (v, from) => {
+    v = Math.round(Math.max(380, Math.min(500, Number(v))) * 10) / 10;
+    if (isNaN(v)) return;
+    setOpt(it, 'a4', v);
+    if (from !== sl) sl.value = Math.round(v);
+    if (from !== num) num.value = v;
+    saveSoon(); tunerPaint();
+  };
+  sl.oninput = () => set(sl.value, sl);
+  num.onchange = () => set(num.value || 440, num);
+  num.onkeydown = e => { e.stopPropagation(); if (e.key === 'Enter') num.blur(); };
+  const reset = mk('button', 'btn', '440');
+  reset.title = 'Back to 440';
+  reset.onclick = () => set(440);
+  row.append(sl, num, mk('span', null, 'Hz'), reset);
+  return optNode('A =', row);
+}
 function optWidgetBg(it) {
   const row = mk('div', 'row wbgrow');
   const wrap = mk('span', 'btns');
@@ -4534,15 +4739,24 @@ function widgetOptions(it) {
       break;
     case 'metro':
       rows.push(
-        optSeg('Beats per bar', [[1, '1'], [2, '2'], [3, '3'], [4, '4'], [5, '5'], [6, '6']], O('bpb', 4), S('bpb')),
-        optSeg('Accent beat 1', ONOFF, O('accent', true), S('accent')),
+        mk('div', 'sub', 'Type the time signature right on the metronome. In 6/8, 9/8 and 12/8 the start of each group of three gets a lighter accent.'),
+        optSeg('Accents', ONOFF, O('accent', true), S('accent')),
+        optSeg('Vibrate on beat', ONOFF, O('haptic', isPhone()), S('haptic')),
         optSeg('Sound', [['click', 'Click'], ['wood', 'Wood'], ['beep', 'Beep']], O('sound', 'click'), S('sound')),
         optSeg('Flash on beat 1', ONOFF, O('flash', false), S('flash')));
       break;
+    case 'poly':
+      rows.push(
+        optSeg('Sound', [['click', 'Click'], ['wood', 'Wood'], ['beep', 'Beep']], O('sound', 'click'), S('sound')),
+        optSeg('Accent beat 1', ONOFF, O('accent', true), S('accent')),
+        optSeg('Vibrate on beat', ONOFF, O('haptic', isPhone()), S('haptic')),
+        mk('div', 'sub', 'The first number plays higher, the second lower. The tempo is for the second number. Vibrating works on Android phones, not iPhones.'));
+      break;
     case 'tuner':
       rows.push(
-        optSeg('Instrument', [['viola', 'Viola'], ['violin', 'Violin'], ['cello', 'Cello'], ['bass', 'Bass'], ['guitar', 'Guitar'], ['chromatic', 'Any']], O('inst', 'viola'), S('inst')),
-        optSeg('A =', [[440, '440'], [441, '441'], [442, '442'], [443, '443']], O('a4', 440), S('a4')),
+        optSeg('Instrument', [['viola', 'Viola'], ['violin', 'Violin'], ['cello', 'Cello'], ['bass', 'Bass'], ['guitar', 'Guitar'], ['chromatic', 'Chromatic']], O('inst', 'viola'), S('inst')),
+        mk('div', 'sub', 'Chromatic shows the nearest note for any instrument or voice.'),
+        optA4(it),
         mk('div', 'sub', 'The mic only listens while the tuner is on. It turns off when you leave the page or after 5 quiet minutes.'));
       break;
     case 'links':
@@ -5655,7 +5869,7 @@ $('fbBtn').onclick = e => { e.stopPropagation(); openFeedback(); };
 // what's new
 const VERSION = '1.9';
 const CHANGELOG = [
-  { v: '1.9', items: ['Metronome with tap tempo', 'Tuner for viola, violin, cello, bass and guitar', 'Quick links', 'Flashcards', 'Weather alert banner for warnings near you', 'Music preset', 'Sync button, and sync merges changes from all your computers', 'Version number at the bottom of Settings'] },
+  { v: '1.9', items: ['Metronome with tap tempo', 'Tuner for viola, violin, cello, bass and guitar', 'Quick links', 'Flashcards', 'Weather alert banner for warnings near you', 'Polyrhythm trainer', 'Metronome and polyrhythm vibrate on phones', 'Music preset', 'Sync button, and sync merges changes from all your computers', 'Version number at the bottom of Settings'] },
   { v: '1.8', items: ['Share a link to your layout, or a code for your bell schedule', 'Send feedback from Settings', 'Phone layout: widgets stack in one column', 'Ctrl+K searches every widget and setting', 'Fine grid for exact placement', 'A dozen fonts', 'Your own photo as the background', 'Seasonal effects: leaves, snow, petals, fireflies', 'Each layout can have its own background', 'Ring look for the class countdown', 'Alarm sounds you can pick'] },
   { v: '1.7', items: ['Bright text mode', 'On this day skips grim events and can show birthdays', 'Today’s schedule, day timeline, today agenda, search box, daily checklist, message board, On this day widgets'] },
   { v: '1.6', items: ['Keep me signed in', 'Background button', 'More presets'] },
